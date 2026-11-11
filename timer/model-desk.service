@@ -1,0 +1,10 @@
+[Unit]
+Description=Model Desk daily refresh
+
+[Service]
+Type=oneshot
+WorkingDirectory={{REPO}}
+Environment=PATH={{PATH}}
+ExecStart={{UV}} run {{REPO}}/refresh.py
+StandardOutput=append:{{HOME}}/refresh.log
+StandardError=append:{{HOME}}/refresh.log

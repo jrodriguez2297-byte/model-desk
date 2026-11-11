@@ -1,0 +1,31 @@
+/* Model Desk local page shell: the design tokens the page expects, in light and dark. */
+:root {
+  color-scheme: light dark;
+  --color-bg: #f7f6f3; --color-panel: #ffffff; --color-fg: #1c1b19; --color-fg-muted: #6b6963;
+  --color-border-line: #e2dfd8; --color-ok: #0e7c4a; --color-warn: #b45309; --color-bad: #b91c1c;
+  --cds-border: #e2dfd8; --cds-text-secondary: #6b6963; --cds-surface-popover: #ffffff;
+  --cds-shadow-popover: 0 6px 24px rgba(0, 0, 0, .14);
+  --cds-chart-grid: #e7e4dd; --cds-chart-axis: #8a877f; --cds-chart-muted: #a8a59d;
+  --cds-radius: 10px; --cds-dur-slow: .3s; --cds-font-weight-medium: 600;
+  --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 16px; --cds-gap-lg: 24px; --cds-gap-xl: 40px;
+  --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 14px; --cds-pad-lg: 20px;
+  --cds-font-size-caption: 13px; --cds-font-size-body: 15px; --cds-font-size-heading: 18px; --cds-font-size-title: 34px;
+  --font-anthropic-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-anthropic-serif: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --dash-c0: #2f5fd0;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #171614; --color-panel: #201f1c; --color-fg: #ece9e2; --color-fg-muted: #a3a097;
+    --color-border-line: #34322d; --color-ok: #4fc3a1; --color-warn: #f0a35e; --color-bad: #f08080;
+    --cds-border: #34322d; --cds-text-secondary: #a3a097; --cds-surface-popover: #2a2925;
+    --cds-shadow-popover: 0 6px 24px rgba(0, 0, 0, .5);
+    --cds-chart-grid: #2e2c28; --cds-chart-axis: #8a877f; --cds-chart-muted: #6f6c65;
+  }
+}
+* { box-sizing: border-box; }
+html { background: var(--color-bg); }
+body { margin: 0; padding: clamp(16px, 3vw, 40px); background: var(--color-bg); color: var(--color-fg);
+  font: var(--cds-font-size-body)/1.5 var(--font-anthropic-sans); }
+a { color: inherit; }
+table { border-collapse: collapse; }

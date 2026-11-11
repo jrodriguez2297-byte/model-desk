@@ -1,0 +1,5 @@
+{
+ "schema_version": 1,
+ "_note": "LMArena model name to an Artificial Analysis slug, for names the automatic match gets wrong.",
+ "models": {}
+}

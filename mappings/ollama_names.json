@@ -1,0 +1,30 @@
+{
+ "schema_version": 1,
+ "_note": "Artificial Analysis slug to an Ollama library name and tag, or \"skip\". Your own ~/.model-desk/config.json ollama_overrides win over this file.",
+ "models": {
+  "qwen3-8-27b-non-reasoning": {
+   "name": "qwen3.8",
+   "tag": "27b"
+  },
+  "deepseek-v4-1-flash-1017": {
+   "name": "deepseek-v4.1-flash",
+   "tag": "1017-cloud"
+  },
+  "deepseek-v4-pro": {
+   "name": "deepseek-v4-pro",
+   "tag": "0813-cloud"
+  },
+  "deepseek-v4-1-flash-1017-high": {
+   "name": "deepseek-v4.1-flash",
+   "tag": "1017-cloud"
+  },
+  "deepseek-v4-1-flash-1017-non-reasoning": {
+   "name": "deepseek-v4.1-flash",
+   "tag": "1017-cloud"
+  },
+  "reflection-beam": {
+   "name": "beam",
+   "tag": "cloud"
+  }
+ }
+}

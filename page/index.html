@@ -1,0 +1,1290 @@
+<meta name="dash-one-writer">
+<style>
+#dash-root { --dash-gutter: clamp(16px, 3vw, 40px); }
+.lb { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--cds-gap-xl); max-width: 1240px; margin-inline: auto; font-family: var(--font-anthropic-sans); }
+.lb h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+.lb h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.lb p { margin: 0; }
+.lb-head { display: grid; gap: var(--cds-gap-sm); }
+.lb-lead { font-size: var(--cds-font-size-heading); color: var(--color-fg); max-width: 70ch; }
+.lb-muted { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.lb-section { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--cds-gap-md); }
+.lb-intro { color: var(--color-fg-muted); max-width: 72ch; }
+.lb-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; display: grid; gap: var(--cds-gap-sm); align-content: start; }
+.lb-picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: var(--cds-gap-md); }
+.pick-k { font-size: var(--cds-font-size-caption); text-transform: uppercase; letter-spacing: .06em; color: var(--color-fg-muted); font-weight: 600; }
+.pick-m { display: flex; align-items: center; gap: var(--cds-gap-sm); min-height: 32px; }
+.pick-m b { font-size: var(--cds-font-size-heading); font-weight: 600; }
+.pick-n { display: flex; align-items: baseline; gap: var(--cds-gap-xs); }
+.pick-n .big { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; }
+.pick-d { font-size: var(--cds-font-size-caption); color: var(--color-fg); font-variant-numeric: tabular-nums; }
+.pick-why { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.logo { width: 24px; height: 24px; border-radius: 6px; flex: none; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; background: var(--color-bg); border: 1px solid var(--color-border-line); }
+.logo img { width: 18px; height: 18px; object-fit: contain; }
+.logo.sm { width: 20px; height: 20px; border-radius: 5px; }
+.logo.sm img { width: 14px; height: 14px; }
+.lb-chart { position: relative; min-height: 420px; }
+.lb-chart.short { min-height: 380px; }
+.lb-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.lb-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.sw.ring { background: transparent !important; border: 2px solid var(--color-fg); }
+.lb-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); max-width: 260px; z-index: 2; }
+.lb-tip .t1 { color: var(--cds-text-secondary); }
+.lb-controls { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: center; font-size: var(--cds-font-size-caption); }
+.lb-controls label { display: inline-flex; align-items: center; gap: 6px; }
+.lb-table-wrap { overflow: auto; max-height: 640px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+.lb table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.lb th { position: sticky; top: 0; background: var(--color-panel); text-align: left; font-weight: 600; color: var(--color-fg-muted); padding: 8px 10px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; z-index: 1; }
+.lb th button { all: unset; cursor: pointer; }
+.lb th button:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.lb td { padding: 8px 10px; border-bottom: 1px solid var(--color-border-line); vertical-align: middle; }
+.lb td.num, .lb th.num { text-align: right; }
+.cell-model { display: flex; align-items: center; gap: 8px; min-width: 200px; }
+.cell-model .sub { display: block; color: var(--color-fg-muted); font-size: 11px; }
+.bar { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+.bar i { display: block; height: 8px; border-radius: 4px; background: var(--cds-chart-muted); }
+.bar i.hi { background: var(--dash-c0, currentColor); }
+.pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-weight: 600; font-size: 11px; white-space: nowrap; border: 1px solid currentColor; }
+.pill.ok { color: var(--color-ok); } .pill.warn { color: var(--color-warn); } .pill.bad { color: var(--color-bad); } .pill.mute { color: var(--color-fg-muted); }
+.cmd { display: inline-flex; align-items: center; gap: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: 6px; padding: 3px 6px; cursor: pointer; white-space: nowrap; color: var(--color-fg); }
+.cmd:focus-visible { outline: 2px solid var(--color-fg); }
+.lb a { color: inherit; }
+.lb details { border-top: 1px solid var(--color-border-line); padding-top: var(--cds-pad-md); }
+.lb summary { cursor: pointer; font-weight: 600; }
+.lb dl { display: grid; grid-template-columns: minmax(0, 12rem) minmax(0, 1fr); gap: 6px 16px; font-size: var(--cds-font-size-caption); margin: var(--cds-gap-md) 0 0; }
+.lb dt { font-weight: 600; } .lb dd { margin: 0; color: var(--color-fg-muted); }
+@media (max-width: 560px) { .lb dl { grid-template-columns: minmax(0, 1fr); } .lb dd { margin-bottom: 8px; } }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+.lb-fail { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); min-height: inherit; }
+.lb-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+.lb-nav { position: sticky; top: 0; z-index: 3; display: flex; gap: var(--cds-gap-xs); flex-wrap: wrap; padding: var(--cds-pad-xs) 0; background: var(--color-bg); border-bottom: 1px solid var(--color-border-line); }
+.lb-nav a { text-decoration: none; font-size: var(--cds-font-size-caption); font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--color-border-line); }
+.lb-nav a:hover, .lb-nav a:focus-visible { border-color: var(--color-fg); }
+.setup-top { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-md); }
+.setup-prog { flex: 1 1 200px; height: 8px; border-radius: 4px; background: var(--cds-chart-muted); overflow: hidden; max-width: 320px; }
+.setup-prog i { display: block; height: 100%; background: var(--color-ok); }
+.setup-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
+.setup-list li { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: var(--cds-gap-sm) var(--cds-gap-md); align-items: start; padding: var(--cds-pad-md) 0; border-bottom: 1px solid var(--color-border-line); }
+.setup-list li:last-child { border-bottom: 0; }
+.step-n { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border: 1.5px solid var(--color-border-line); color: var(--color-fg-muted); }
+.step-n.done { background: var(--color-ok); border-color: var(--color-ok); color: var(--color-bg); }
+.step-k { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--color-fg-muted); font-weight: 600; }
+.step-m { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+.step-m b { font-weight: 600; }
+.step-why { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: 2px; }
+.step-next { font-size: var(--cds-font-size-caption); margin-top: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.step-act { justify-self: end; }
+@media (max-width: 560px) { .setup-list li { grid-template-columns: 28px minmax(0, 1fr); } .step-act { grid-column: 2; justify-self: start; } }
+.av { width: 22px; height: 22px; border-radius: 6px; flex: none; background: var(--color-bg); border: 1px solid var(--color-border-line); object-fit: cover; }
+.av.lg { width: 32px; height: 32px; border-radius: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { all: unset; cursor: pointer; font-size: var(--cds-font-size-caption); padding: 3px 10px; border-radius: 999px; border: 1px solid var(--color-border-line); }
+.chip[aria-pressed=true] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+.chip:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.gh-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); gap: var(--cds-gap-md); }
+.gh-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); display: grid; gap: 6px; align-content: start; min-width: 0; }
+.gh-h { display: flex; gap: 8px; align-items: center; min-width: 0; }
+.gh-h a { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gh-h .sub { display: block; color: var(--color-fg-muted); font-size: 11px; }
+.gh-d { font-size: var(--cds-font-size-caption); color: var(--color-fg); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.gh-s { display: flex; gap: var(--cds-gap-md); align-items: baseline; font-variant-numeric: tabular-nums; font-size: var(--cds-font-size-caption); flex-wrap: wrap; }
+.gh-s .big { font-size: var(--cds-font-size-heading); font-weight: 600; }
+.tag { font-size: 11px; padding: 1px 7px; border-radius: 6px; background: var(--color-bg); border: 1px solid var(--color-border-line); color: var(--color-fg-muted); white-space: nowrap; }
+.tag.warn { color: var(--color-warn); border-color: currentColor; }
+.gh-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: var(--cds-gap-lg, 24px); }
+.gh-two h3 { margin: 0 0 4px; font-size: var(--cds-font-size-body); }
+.gh-two .lb-chart { min-height: 300px; }
+.gh-tools { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; font-size: var(--cds-font-size-caption); }
+.gh-tools input[type=search], .gh-tools select { font: inherit; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 8px; padding: 5px 9px; min-height: 30px; }
+.gh-tools input[type=search] { flex: 1 1 14rem; min-width: 0; max-width: 22rem; }
+.gh-tools label { display: inline-flex; gap: 6px; align-items: center; color: var(--color-fg-muted); }
+.gh-tools input:focus-visible, .gh-tools select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 1px; }
+.gh-count { color: var(--color-fg-muted); margin-left: auto; }
+.gh-spark { display: block; width: 100%; height: 28px; }
+.gh-log { display: grid; gap: var(--cds-gap-md); }
+.gh-day { border-top: 1px solid var(--color-border-line); padding-top: 8px; display: grid; gap: 4px; }
+.gh-day > b { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: .04em; }
+.gh-f { display: grid; grid-template-columns: 7.5rem 1fr; gap: 8px; font-size: var(--cds-font-size-caption); align-items: baseline; }
+.gh-f .tag { justify-self: start; }
+.gh-f .tag.hot { color: var(--color-fg); border-color: var(--color-fg); }
+.gh-desc { color: var(--color-fg-muted); font-size: 11px; display: block; max-width: 34ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tiers { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
+.tier { display: grid; grid-template-columns: minmax(7rem, 9rem) minmax(0, 1fr); gap: var(--cds-gap-md); align-items: center; padding: 8px 0; border-bottom: 1px solid var(--color-border-line); }
+.tier:last-child { border-bottom: 0; }
+.tier-k b { display: block; font-size: var(--cds-font-size-body, 14px); }
+.tier-k span { font-size: 11px; color: var(--color-fg-muted); }
+.tier-track { position: relative; height: 40px; }
+.tier-bar { position: absolute; left: 0; top: 6px; height: 28px; border-radius: 6px; background: var(--cds-chart-muted); display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; box-sizing: border-box; min-width: 44px; }
+.tier-bar.mac { background: var(--color-ok); } .tier-bar.best { background: var(--dash-c0, currentColor); }
+.tier-bar .v { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--color-bg); font-size: 13px; }
+.tier-lab { position: absolute; top: 0; height: 40px; display: flex; align-items: center; gap: 8px; white-space: nowrap; font-size: var(--cds-font-size-caption); padding-left: 10px; }
+.tier-lab b { font-weight: 600; } .tier-lab .d { color: var(--color-fg-muted); }
+.tier-lab.inside { right: auto; }
+.tier-ceil { position: absolute; top: 0; bottom: 0; border-left: 2px dashed var(--color-fg-muted); }
+.tier-gain { font-size: 11px; font-weight: 600; color: var(--color-ok); }
+.tier-axis { display: grid; grid-template-columns: minmax(7rem, 9rem) minmax(0, 1fr); gap: var(--cds-gap-md); font-size: 11px; color: var(--color-fg-muted); }
+@media (max-width: 560px) { .tier { grid-template-columns: minmax(0, 1fr); gap: 2px; } .tier-axis { grid-template-columns: minmax(0, 1fr); } .tier-axis > :first-child { display: none; } }
+.u-banner { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: center; font-size: var(--cds-font-size-caption); }
+.u-days { display: flex; gap: 3px; } .u-days i { width: 14px; height: 14px; border-radius: 3px; background: var(--cds-chart-muted); opacity: .35; } .u-days i.on { background: var(--color-ok); opacity: 1; } .u-days i.today { outline: 2px solid var(--color-fg); outline-offset: 1px; }
+.u-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: var(--cds-gap-md); }
+.u-kpi .big { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.u-kpi .cmp { font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.u-kpi .cmp.good { color: var(--color-ok); } .u-kpi .cmp.bad { color: var(--color-bad); }
+.u-kpi .goal { font-size: 11px; color: var(--color-fg-muted); }
+.u-split { display: flex; height: 36px; border-radius: 8px; overflow: hidden; }
+.u-split div { display: flex; align-items: center; padding: 0 10px; font-size: 12px; font-weight: 600; color: var(--color-bg); white-space: nowrap; overflow: hidden; min-width: 0; }
+.u-split-key { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--cds-gap-sm); font-size: var(--cds-font-size-caption); }
+.u-split-key b { display: block; } .u-split-key span { color: var(--color-fg-muted); }
+.u-moves { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--cds-gap-md); }
+.u-move { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: var(--cds-gap-sm) var(--cds-gap-md); align-items: start; padding: var(--cds-pad-md); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); }
+.u-move .save { text-align: right; font-variant-numeric: tabular-nums; } .u-move .save b { display: block; font-size: var(--cds-font-size-heading); }
+.u-move .how { font-size: var(--cds-font-size-caption); margin-top: 4px; }
+@media (max-width: 560px) { .u-move { grid-template-columns: 28px minmax(0, 1fr); } .u-move .save { grid-column: 2; text-align: left; } }
+.u-fit { font-size: 11px; font-weight: 600; }
+.lb-stale { margin: 0 0 var(--cds-gap-md); padding: 8px 12px; border: 1px solid var(--color-warn); border-radius: var(--cds-radius); font-size: var(--cds-font-size-caption); }
+.lb-foot { margin-top: var(--cds-gap-xl); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+</style>
+
+<div class="lb">
+  <header class="lb-head" id="top">
+    <h1>Model Desk</h1>
+    <p class="lb-lead">The smartest model that runs free on your machine today is <b data-draw="pick-field" data-pick="local" data-f="model" data-source="picks" data-field="model" data-where="pick=local">—</b>, with an Intelligence Index of <b data-draw="pick-field" data-pick="local" data-f="intelligence" data-source="picks" data-field="intelligence" data-where="pick=local">—</b>. The top model anywhere scores <b data-draw="pick-field" data-pick="best" data-f="intelligence" data-source="picks" data-field="intelligence" data-where="pick=best">—</b>.</p>
+    <p class="lb-muted">Artificial Analysis data fetched <span data-draw="asof" data-ds="aa_models" data-source="aa_models">—</span>. LMArena votes published <span data-draw="asof" data-ds="arena" data-source="arena">—</span>. GitHub checked <span data-draw="asof" data-ds="repos" data-source="repos">—</span>. Updates itself every morning.</p>
+  </header>
+
+  <p class="lb-stale" data-draw="old-build" hidden></p>
+  <nav class="lb-nav" aria-label="Sections">
+    <a href="#usage">My AI usage</a><a href="#setup">My setup</a><a href="#rising">Rising on GitHub</a><a href="#watch">My repos</a><a href="#picks">Model picks</a><a href="#map">Budgets</a><a href="#local">Local models</a><a href="#tasks">By task</a><a href="#all">All models</a>
+  </nav>
+
+  <section class="lb-section" id="usage">
+    <p class="lb-stale" data-draw="stale" data-stale="Claude Code logs" data-source="status" hidden></p>
+    <h2>How you use Claude</h2>
+    <p class="lb-intro">A daily audit of your Claude Code sessions on this machine. Dollars are API-equivalent: on your plan they show what burns your limit, not a bill.</p>
+    <div class="u-banner" data-draw="u-banner" data-source="usage_daily"></div>
+    <div class="u-kpis" data-draw="u-kpis" data-source="usage_kpis"></div>
+
+    <div class="lb-card">
+      <h3 style="margin:0;font-size:var(--cds-font-size-heading);font-weight:600">Your top moves to spend less, same quality</h3>
+      <p class="lb-muted">Ranked by what they would have saved per week, from your own logs.</p>
+      <ol class="u-moves" data-draw="u-moves" data-source="usage_moves"></ol>
+    </div>
+
+    <div class="lb-card">
+      <h3 style="margin:0;font-size:var(--cds-font-size-heading);font-weight:600">Where your tokens go</h3>
+      <div class="u-split" data-draw="u-split" data-source="usage_daily"></div>
+      <div class="u-split-key" data-draw="u-split-key" data-source="usage_daily"></div>
+    </div>
+
+    <div class="lb-card">
+      <h3 style="margin:0;font-size:var(--cds-font-size-heading);font-weight:600">Daily spend by model</h3>
+      <div class="lb-legend" data-draw="u-legend"></div>
+      <div class="lb-chart short" data-draw="u-daily" data-source="usage_daily"></div>
+    </div>
+
+    <div class="lb-card">
+      <h3 style="margin:0;font-size:var(--cds-font-size-heading);font-weight:600">Which model for which job</h3>
+      <p class="lb-muted">Anthropic's guidance applied to your jobs. "You used" shows what your sessions of that kind actually ran on.</p>
+      <div class="lb-table-wrap" style="max-height:none">
+        <table data-source="playbook" data-row-key="task">
+          <thead><tr><th data-field="task">Job</th><th data-field="use">Use</th><th data-field="why">Why</th><th data-field="used">You used</th><th class="num" data-field="sessions">Sessions</th><th class="num" data-field="cost">Spend</th></tr></thead>
+          <tbody data-draw="playbook-rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="lb-table-wrap">
+      <table data-source="usage" data-row-key="session">
+        <thead><tr><th data-field="title">Session (14 days, costliest first)</th><th data-field="task">Job</th><th data-field="model">Model</th><th class="num" data-field="cost">Spend</th><th class="num" data-field="replies">Replies</th><th class="num" data-field="sub_cost">Subagents</th><th data-field="finding">Finding</th></tr></thead>
+        <tbody data-draw="usage-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="lb-section" id="setup">
+    <p class="lb-stale" data-draw="stale" data-stale="GitHub,Ollama" data-source="status" hidden></p>
+    <h2>Your recommended setup</h2>
+    <p class="lb-intro">One pick per job, rebuilt every morning from the benchmarks and GitHub. Green means you already have it.</p>
+    <div class="lb-card" data-source="setup">
+      <div class="setup-top"><b data-draw="setup-count">—</b><div class="setup-prog"><i data-draw="setup-bar" style="width:0"></i></div></div>
+      <ol class="setup-list" data-draw="setup-list" data-source="setup repos"></ol>
+    </div>
+  </section>
+
+  <section class="lb-section" id="rising">
+    <p class="lb-stale" data-draw="stale" data-stale="GitHub" data-source="status" hidden></p>
+    <h2>Rising on GitHub</h2>
+    <p class="lb-intro">New repos from the last 60 days in the areas you save, ranked by stars gained per day. Not reviewed yet: scan before you install. Every repo found is kept, so trends build up day by day.</p>
+    <div class="u-kpis" data-draw="gh-kpis" data-source="gh_ledger gh_findings gh_trends"></div>
+    <div class="gh-two">
+      <div>
+        <h3>Where the attention goes</h3>
+        <p class="lb-muted">Stars gained per day across everything tracked, split by area. One bar per daily check. A check made less than 20 hours after the one before is left out.</p>
+        <div class="lb-legend" data-draw="gh-area-key" data-source="gh_trends"></div>
+        <div class="lb-chart" data-draw="gh-area" data-source="gh_trends"></div>
+      </div>
+      <div>
+        <h3>Top new repos over time</h3>
+        <p class="lb-muted">Stars gained since first found, for the 8 fastest new repos. Steeper line = faster growth.</p>
+        <div class="lb-chart" data-draw="gh-lines" data-source="gh_history gh_ledger"></div>
+      </div>
+    </div>
+    <div class="chips" role="group" aria-label="Category" data-draw="gh-chips" data-source="repos"></div>
+    <div class="gh-tools" role="group" aria-label="Filter and sort new repos">
+      <input type="search" id="gh-q" placeholder="Search name, owner or description" aria-label="Search repos">
+      <label>Made in <select id="gh-win"><option value="60">last 60 days</option><option value="30">last 30 days</option><option value="14">last 14 days</option><option value="7">last 7 days</option></select></label>
+      <label>Stars <select id="gh-min"><option value="0">any</option><option value="500">500+</option><option value="1000">1,000+</option><option value="5000">5,000+</option><option value="10000">10,000+</option></select></label>
+      <label>Sort by <select id="gh-sort"><option value="pace">Fastest now (stars/day)</option><option value="stars">Most stars</option><option value="gained">Most gained since found</option><option value="newest">Newest</option></select></label>
+      <span class="gh-count" data-draw="gh-count" data-source="gh_rising"></span>
+    </div>
+    <div class="gh-grid" data-draw="gh-cards" data-source="gh_rising gh_history gh_ledger"></div>
+    <h3>Findings log</h3>
+    <p class="lb-muted">What the daily check noticed, newest first. Kept forever. A full write-up for each day is saved in <code>~/.model-desk/findings</code>.</p>
+    <div class="chips" role="group" aria-label="Finding type" data-draw="gh-kind-chips" data-source="gh_findings"></div>
+    <div class="gh-log" data-draw="gh-log" data-source="gh_findings"></div>
+  </section>
+
+  <section class="lb-section" id="watch">
+    <p class="lb-stale" data-draw="stale" data-stale="GitHub" data-source="status" hidden></p>
+    <h2>Your saved repos</h2>
+    <p class="lb-intro">Every repo from your Desktop folder and tool report, checked daily for stars, releases and health.</p>
+    <div class="lb-controls"><label><input type="checkbox" id="hide-skip" checked> Hide ones I skipped</label></div>
+    <div class="lb-table-wrap">
+      <table data-source="repos" data-row-key="slug">
+        <thead><tr>
+          <th data-field="slug">Repo</th>
+          <th data-field="cat">Area</th>
+          <th data-field="status">Status</th>
+          <th class="num" data-field="stars">Stars</th>
+          <th class="num" data-field="stars_per_day">Stars / day</th>
+          <th data-field="release">Latest release</th>
+          <th class="num" data-field="days_since_push">Last commit</th>
+          <th data-field="flags">Watch outs</th>
+        </tr></thead>
+        <tbody data-draw="watch-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="lb-section" id="picks">
+    <p class="lb-stale" data-draw="stale" data-stale="Artificial Analysis,Ollama" data-source="status" hidden></p>
+    <h2>Best picks right now</h2>
+    <div class="lb-picks">
+      <article class="lb-card" id="pick-local">
+        <p class="pick-k">Best on your machine</p>
+        <div class="pick-m"><span data-draw="pick-logo" data-pick="local" data-source="picks"></span><b data-draw="pick-field" data-pick="local" data-f="model" data-source="picks" data-field="model" data-where="pick=local">—</b></div>
+        <p class="pick-n"><span class="big" data-draw="pick-field" data-pick="local" data-f="intelligence" data-source="picks" data-field="intelligence" data-where="pick=local">—</span><span class="lb-muted">intelligence</span></p>
+        <p class="pick-d" data-draw="pick-field" data-pick="local" data-f="detail" data-source="picks" data-field="detail" data-where="pick=local">—</p>
+        <p class="pick-why">Highest benchmark score among models that download and run on this machine. Free and private.</p>
+      </article>
+      <article class="lb-card" id="pick-uncensored">
+        <p class="pick-k">Best uncensored on your machine</p>
+        <div class="pick-m"><span data-draw="pick-logo" data-pick="uncensored" data-source="picks"></span><b data-draw="pick-field" data-pick="uncensored" data-f="model" data-source="picks" data-field="model" data-where="pick=uncensored">—</b></div>
+        <p class="pick-n"><span class="big" data-draw="pick-field" data-pick="uncensored" data-f="intelligence" data-source="picks" data-field="intelligence" data-where="pick=uncensored">—</span><span class="lb-muted">intelligence of the original</span></p>
+        <p class="pick-d" data-draw="pick-field" data-pick="uncensored" data-f="detail" data-source="picks" data-field="detail" data-where="pick=uncensored">—</p>
+        <p class="pick-why">Best local model with an abliterated build. Expect a few points lower than the original, and more overconfidence.</p>
+      </article>
+      <article class="lb-card" id="pick-value">
+        <p class="pick-k">Best value API</p>
+        <div class="pick-m"><span data-draw="pick-logo" data-pick="value" data-source="picks"></span><b data-draw="pick-field" data-pick="value" data-f="model" data-source="picks" data-field="model" data-where="pick=value">—</b></div>
+        <p class="pick-n"><span class="big" data-draw="pick-field" data-pick="value" data-f="intelligence" data-source="picks" data-field="intelligence" data-where="pick=value">—</span><span class="lb-muted">intelligence</span></p>
+        <p class="pick-d" data-draw="pick-field" data-pick="value" data-f="detail" data-source="picks" data-field="detail" data-where="pick=value">—</p>
+        <p class="pick-why">Most intelligence per dollar among hosted models scoring 25 or more. For work too big for your machine.</p>
+      </article>
+      <article class="lb-card" id="pick-best">
+        <p class="pick-k">Smartest overall</p>
+        <div class="pick-m"><span data-draw="pick-logo" data-pick="best" data-source="picks"></span><b data-draw="pick-field" data-pick="best" data-f="model" data-source="picks" data-field="model" data-where="pick=best">—</b></div>
+        <p class="pick-n"><span class="big" data-draw="pick-field" data-pick="best" data-f="intelligence" data-source="picks" data-field="intelligence" data-where="pick=best">—</span><span class="lb-muted">intelligence</span></p>
+        <p class="pick-d" data-draw="pick-field" data-pick="best" data-f="detail" data-source="picks" data-field="detail" data-where="pick=best">—</p>
+        <p class="pick-why">The ceiling. Use it to judge how far behind the local models are.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="lb-section" id="map">
+    <p class="lb-stale" data-draw="stale" data-stale="Artificial Analysis" data-source="status" hidden></p>
+    <h2>What each budget buys you</h2>
+    <p class="lb-intro">The smartest model at each price. Longer bar is smarter. Price is per 1 million tokens, about 1,000 long emails.</p>
+    <div class="lb-card">
+      <div class="tiers" data-draw="tiers" data-source="tiers"></div>
+      <p class="lb-muted" data-draw="tiers-note" data-source="tiers"></p>
+    </div>
+  </section>
+
+  <section class="lb-section" id="local">
+    <p class="lb-stale" data-draw="stale" data-stale="Ollama,Artificial Analysis" data-source="status" hidden></p>
+    <h2>Local models, ranked</h2>
+    <p class="lb-intro">Every model on Ollama that has a benchmark score. Click a command to copy it, then paste it in Terminal.</p>
+    <div class="lb-controls">
+      <label><input type="checkbox" id="fit-only" checked> Only models that fit my Mac</label>
+    </div>
+    <div class="lb-table-wrap">
+      <table data-source="local_board" data-row-key="pull">
+        <thead><tr>
+          <th class="num" data-field="rank">#</th>
+          <th data-field="model">Model</th>
+          <th data-field="intelligence">Intelligence</th>
+          <th class="num" data-field="arena_elo">Arena score</th>
+          <th class="num" data-field="download_gb">Download</th>
+          <th data-field="mac_fit">Fits your machine</th>
+          <th data-field="installed">On this machine</th>
+          <th data-field="uncensored_url">Uncensored build</th>
+          <th data-field="pull">Install</th>
+        </tr></thead>
+        <tbody data-draw="local-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="lb-section" id="tasks">
+    <p class="lb-stale" data-draw="stale" data-stale="LMArena" data-source="status" hidden></p>
+    <h2>Best by task, from human votes</h2>
+    <p class="lb-intro">LMArena scores from millions of blind side-by-side votes. Bars show the score, whiskers its 95% range. Gaps under about 10 points are a tie.</p>
+    <div class="lb-card">
+      <div class="lb-controls">
+        <label>Task <select class="dash-select" id="task">
+          <option>Overall</option><option>Business and finance</option><option>Coding</option><option>Creative writing</option><option>Following instructions</option><option>Hard prompts</option>
+        </select></label>
+        <label><input type="checkbox" id="open-only"> Open models only</label>
+      </div>
+      <div class="lb-legend">
+        <span><i class="sw" data-sw="0"></i>Open license</span>
+        <span><i class="sw" data-sw="muted"></i>Proprietary</span>
+      </div>
+      <div class="lb-chart short" data-draw="arena-bars" data-source="arena"></div>
+    </div>
+  </section>
+
+  <section class="lb-section" id="all">
+    <p class="lb-stale" data-draw="stale" data-stale="Artificial Analysis" data-source="status" hidden></p>
+    <h2>Every model, by benchmark</h2>
+    <p class="lb-intro">The top 60 models on Artificial Analysis. Click a column to sort.</p>
+    <div class="lb-table-wrap">
+      <table data-source="aa_models" data-row-key="slug">
+        <thead><tr>
+          <th data-field="model"><button type="button" data-sort="model">Model</button></th>
+          <th data-field="open_weights"><button type="button" data-sort="open_weights">Weights</button></th>
+          <th class="num" data-field="intelligence"><button type="button" data-sort="intelligence">Intelligence</button></th>
+          <th class="num" data-field="price_blended"><button type="button" data-sort="price_blended">$ / 1M tokens</button></th>
+          <th class="num" data-field="speed_tps"><button type="button" data-sort="speed_tps">Speed (tok/s)</button></th>
+          <th class="num" data-field="price_cache_read"><button type="button" data-sort="price_cache_read">Cache read $ / 1M</button></th>
+          <th class="num" data-field="ttft_s"><button type="button" data-sort="ttft_s">First token (s)</button></th>
+        </tr></thead>
+        <tbody data-draw="all-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <details id="method">
+    <summary>Sources, scores and method</summary>
+    <dl>
+      <dt>Intelligence Index</dt><dd>Artificial Analysis's combined score from about 20 independent evals (reasoning, science, coding, agent and knowledge tests), run by them on every model. 0 to 100; frontier models sit near 60.</dd>
+      <dt>Arena score</dt><dd>LMArena's Elo rating from blind human votes between two answers. It measures which answer people prefer, not whether it is correct.</dd>
+      <dt>$ / 1M tokens</dt><dd>Median hosted price, blended 3 parts input to 1 part output. Local models cost nothing per token.</dd>
+      <dt>Fits your machine</dt><dd>Ollama download size against your memory<span data-draw="ram-note"></span>: "Runs great" at 40% of memory or less, "Runs" at 70% or less, leaving room for the system and your other apps. Checked on Apple Silicon Macs only; other machines show "Not checked".</dd>
+      <dt>Uncensored build</dt><dd>An abliterated copy published by huihui-ai on Hugging Face. Research shows these lose a little quality and lean overconfident.</dd>
+      <dt>Refresh</dt><dd>A timer on your machine runs a plain script each morning (no AI involved). It re-downloads every source and rebuilds this page. If one source fails, that section keeps its last good data and says so.</dd>
+      <dt>Stars / day</dt><dd>Stars gained per day over the last 7 days of daily snapshots. Until a week of snapshots exists, it is the lifetime average (stars divided by age), marked "avg".</dd>
+      <dt>Rising on GitHub</dt><dd>GitHub search for repos made in the last 60 days with 300+ stars, in your areas. Filtered out: no English description, bot-evasion, free-key resellers, crypto, games, trading.</dd>
+      <dt>Watch outs</dt><dd>Archived, no commits in 4+ months, unclear license, or copyleft license (GPL, AGPL: fine to use, careful about bundling into your own product).</dd>
+      <dt>Findings history</dt><dd>Every repo ever found stays in a ledger with the day it was first and last seen and its peak stars per day. Each morning the check writes findings: top 3 risers, new finds, breakouts (over 2x its recent pace and 50+ stars/day, needs 4+ days of data), releases, cooling (below 30% of its peak), repos that dropped off, and the hottest area.</dd>
+      <dt>Stars per day by area</dt><dd>Sum of stars gained between two daily snapshots, divided by the days between them, for every tracked repo in that area.</dd>
+      <dt>Setup status</dt><dd>"Have it" means installed on this machine. "Add next" comes from your watchlist's trial and to-do items first, then the fastest-rising repo in that area with no watch outs.</dd>
+      <dt>Usage audit</dt><dd>Reads your Claude Code session logs on this machine every morning (subagents included) and prices each reply at list rates from OpenRouter, cache writes and cache reads included. A model with no known price is shown as "unpriced" and never guessed. Only totals reach this page, never what you typed. Session titles and project names stay off unless you turn them on in <code>~/.model-desk/config.json</code>.</dd>
+      <dt>Job type</dt><dd>Guessed from each session's title and first message (fix, plan, review, research, design and so on). A guess, so a few sessions land in the wrong job.</dd>
+      <dt>Savings</dt><dd>Estimates: the same tokens repriced at the suggested model, or the share of re-reading a change would remove. Quality is not measured here; the playbook keeps Opus for planning, debugging, review and design.</dd>
+      <dt>Playbook source</dt><dd>Anthropic's Claude API guidance: Sonnet for everyday coding and agent work, low effort for subagents and simple tasks, at least high effort for intelligence-sensitive work, and try the stronger model at lower effort before switching models.</dd>
+      <dt>Not included</dt><dd>LiveBench and Hugging Face's Open LLM Leaderboard (no machine-readable feed today), and speed measured on your own machine (the speeds shown are hosted).</dd>
+    </dl>
+  </details>
+  <footer class="lb-foot">Model data from <a href="https://artificialanalysis.ai" target="_blank" rel="noopener">Artificial Analysis</a> (free Data API, for your own use). Human-vote scores from <a href="https://lmarena.ai" target="_blank" rel="noopener">LMArena</a> (CC-BY-4.0). Local builds from the Ollama library. Prices from OpenRouter. Built with Model Desk.</footer>
+</div>
+
+<script>
+// Each attached file is {rows, source, fetched}: rows become the table, the rest is shown as meta.
+for (const id of ['aa_models', 'arena', 'local', 'crosswalk', 'uncensored', 'repos', 'status', 'usage', 'usage_daily', 'gh_history', 'gh_trends', 'gh_findings', 'gh_ledger']) {
+  dash.loader(id, {
+    description: 'Reads the rows the daily refresh wrote, and keeps when and where they were fetched',
+    fn: ({ answer }) => {
+      const rows = (answer && answer.rows) || [];
+      return { data: rows, columns: Object.keys(rows[0] || {}), meta: [
+        { label: 'Fetched', value: String(answer.fetched || '') },
+        { label: 'Source', value: String(answer.source || '') },
+      ] };
+    },
+  });
+}
+
+dash.calc('local_board', {
+  inputs: ['local', 'aa_models', 'arena', 'crosswalk', 'uncensored'],
+  title: 'Local models, ranked',
+  description: 'Each Ollama download with its best-scoring setting, its LMArena score and any uncensored build, ranked by Intelligence Index.',
+  fn: (local, aa_models, arena, crosswalk, uncensored) => {
+    const bySlug = new Map(aa_models.map((m) => [m.slug, m]));
+    const arenaName = new Map(crosswalk.map((c) => [c.slug, c.arena_model]));
+    const elo = new Map(arena.filter((a) => a.category === 'Overall').map((a) => [a.model, a.elo]));
+    const unc = new Map(uncensored.map((u) => [u.slug, u.url]));
+    const out = new Map();
+    for (const l of local) {
+      if (l.mac_fit === 'Cloud only') continue;
+      const m = bySlug.get(l.slug) || {};
+      const iq = m.intelligence ?? null;
+      const prev = out.get(l.ollama);
+      const u = unc.get(l.slug) || (prev && prev.uncensored_url) || null;
+      const e = elo.get(arenaName.get(l.slug)) ?? (prev && prev.arena_elo) ?? null;
+      if (prev && (prev.intelligence ?? -1) >= (iq ?? -1)) { prev.uncensored_url = u; prev.arena_elo = e; continue; }
+      const setting = (m.model || '').match(/\(([^)]+)\)\s*$/);
+      out.set(l.ollama, {
+        pull: l.ollama, model: m.short || l.model, setting: setting ? setting[1] : (l.uncensored_of ? 'Uncensored copy of ' + l.uncensored_of : ''),
+        creator: m.creator || l.creator || '', logo: m.creator || l.creator || null, intelligence: iq, arena_elo: e,
+        download_gb: l.download_gb, mac_fit: l.mac_fit, installed: !!l.installed, uncensored_url: l.uncensored_of ? l.ollama_url : u,
+        is_uncensored: !!l.uncensored_of, ollama_url: l.ollama_url,
+      });
+    }
+    const rows = [...out.values()].sort((a, b) => (b.intelligence ?? -1) - (a.intelligence ?? -1));
+    rows.forEach((r, i) => { r.rank = i + 1; });
+    return rows;
+  },
+});
+
+dash.calc('picks', {
+  inputs: ['local_board', 'aa_models'],
+  title: 'Best picks',
+  description: 'Best local model that fits, best with an uncensored build, most intelligence per dollar among hosted models scoring 25+, and the top model overall.',
+  fn: (local_board, aa_models) => {
+    const fits = local_board.filter((r) => RUNS(r) && r.intelligence != null);
+    const gb = (r) => r.download_gb == null ? '' : Math.round(r.download_gb) + ' GB download · ';
+    const usd = (v) => '$' + (v < 1 ? v.toFixed(2) : v.toFixed(1));
+    const local = fits[0];
+    const unc = fits.find((r) => r.uncensored_url && !r.is_uncensored);
+    const paid = aa_models.filter((m) => m.price_blended > 0 && (m.intelligence ?? 0) >= 25);
+    const value = paid.sort((a, b) => b.intelligence / b.price_blended - a.intelligence / a.price_blended)[0];
+    const best = aa_models.slice().sort((a, b) => (b.intelligence ?? 0) - (a.intelligence ?? 0))[0];
+    const rows = [];
+    if (local) rows.push({ pick: 'local', model: local.model, logo: local.logo, intelligence: local.intelligence, detail: gb(local) + 'ollama pull ' + local.pull });
+    if (unc) rows.push({ pick: 'uncensored', model: unc.model + ' abliterated', logo: unc.logo, intelligence: unc.intelligence, detail: unc.uncensored_url.replace('https://', '') });
+    if (value) rows.push({ pick: 'value', model: value.model, logo: value.creator, intelligence: value.intelligence, detail: usd(value.price_blended) + ' per 1M tokens · ' + value.creator });
+    if (best) rows.push({ pick: 'best', model: best.model, logo: best.creator, intelligence: best.intelligence, detail: (best.price_blended ? usd(best.price_blended) + ' per 1M tokens · ' : '') + best.creator });
+    return rows;
+  },
+});
+
+dash.calc('tiers', {
+  inputs: ['local_board', 'aa_models'],
+  title: 'Best model at each budget',
+  description: 'Smartest model that fits your machine (free), then the smartest hosted model in each price band, by blended price per 1M tokens.',
+  fn: (local_board, aa_models) => {
+    const bands = [[0, 0.25, 'Under $0.25'], [0.25, 1, '$0.25 to $1'], [1, 3, '$1 to $3'], [3, 10, '$3 to $10'], [10, Infinity, 'Over $10']];
+    const rows = [];
+    const mac = local_board.filter((r) => RUNS(r) && r.intelligence != null && !r.is_uncensored)[0];
+    if (mac) rows.push({ band: 'Free on your machine', sub: 'private, no bill', model: mac.model, creator: mac.creator, logo: mac.logo, intelligence: mac.intelligence, price: 0, kind: 'mac', count: local_board.length });
+    for (const [lo, hi, label] of bands) {
+      const inBand = aa_models.filter((m) => m.price_blended > lo && m.price_blended <= hi && m.intelligence != null);
+      if (!inBand.length) continue;
+      const top = inBand.sort((a, b) => b.intelligence - a.intelligence)[0];
+      rows.push({ band: label, sub: inBand.length + ' models', model: top.model, creator: top.creator, logo: top.creator, intelligence: top.intelligence, price: top.price_blended, kind: 'hosted', count: inBand.length });
+    }
+    const best = Math.max(...rows.map((r) => r.intelligence));
+    let prev = null;
+    for (const r of rows) { r.gain = prev == null ? null : Math.round((r.intelligence - prev) * 10) / 10; r.is_best = r.intelligence === best; prev = Math.max(prev ?? -1, r.intelligence); }
+    return rows;
+  },
+});
+
+const MD = window.MODEL_DESK || {};
+const RECENT_DAYS = 7;
+const isRecent = (r) => r.window === 'recent';
+const RUNS = (r) => r.mac_fit === 'Runs great' || r.mac_fit === 'Runs' || r.mac_fit === 'Not checked';
+const FAM_LABEL = { fable: 'Fable', opus: 'Opus', sonnet: 'Sonnet', haiku: 'Haiku', other: 'Other' };
+const PLAYBOOK = [
+  ['Plan', 'Opus · high', 'opus', 'Planning repays deep thinking. Try Fable only when an Opus plan falls short: it costs more per token.'],
+  ['Build', 'Opus · medium', 'opus', 'With a clear plan the hard thinking is done. Medium keeps quality and cuts thinking tokens.'],
+  ['Fix a bug', 'Opus · high', 'opus', 'Debugging is judgment-heavy. Do not save here.'],
+  ['Review', 'Opus · high', 'opus', 'Finding what is wrong needs the strongest judgment.'],
+  ['Design', 'Opus · medium', 'opus', 'Visual taste needs Opus. Many small revisions do not need high effort.'],
+  ['Research', 'Sonnet · medium', 'sonnet', 'Mostly reading and summarizing. Cheaper per token than Opus.'],
+  ['Writing', 'Sonnet · medium', 'sonnet', 'Drafts and replies. Use Opus for brand-critical copy.'],
+  ['Question', 'Sonnet · low', 'sonnet', 'Short answers do not need deep thinking.'],
+  ['Setup and ops', 'Sonnet · medium', 'sonnet', 'Installs, git and config follow known steps.'],
+  ['Routine', 'Sonnet · low', 'sonnet', 'Scheduled jobs repeat the same steps every day.'],
+  ['Subagents: search', 'Haiku · low', 'haiku', 'Finding files and lines is lookup, not judgment. Anthropic suggests low effort for subagents.'],
+  ['Subagents: research', 'Sonnet · medium', 'sonnet', 'Reading many pages, then one summary back.'],
+];
+
+dash.calc('usage_kpis', {
+  inputs: ['usage', 'usage_daily'],
+  title: 'Usage audit numbers',
+  description: 'Spend per active day, share on Opus and Fable, tokens loaded before the first message, and subagent spend on cheaper models: the last 7 days against the 28 days before them.',
+  fn: (usage, daily) => {
+    const split = (rows, f) => [rows.filter((r) => !f(r)), rows.filter(f)];
+    const [bD, aD] = split(daily, isRecent);
+    const [bS, aS] = split(usage, isRecent);
+    const perDay = (rows) => { const days = new Set(rows.map((r) => r.day)).size; return days ? rows.reduce((s, r) => s + r.cost, 0) / days : null; };
+    const bigShare = (rows) => { const t = rows.reduce((s, r) => s + r.cost, 0); return t ? 100 * rows.filter((r) => r.family === 'opus' || r.family === 'fable').reduce((s, r) => s + r.cost, 0) / t : null; };
+    const median = (a) => { if (!a.length) return null; const s = a.slice().sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
+    const subCheap = (rows) => { const t = rows.reduce((s, r) => s + r.sub_cost, 0); return t ? 100 * rows.filter((r) => r.family === 'sonnet' || r.family === 'haiku').reduce((s, r) => s + r.sub_cost, 0) / t : null; };
+    return [
+      { kpi: 'spend', label: 'Spend per active day', before: perDay(bD), now: perDay(aD), unit: '$', lower_is_better: true, goal: 'Goal: down 30% with the same results' },
+      { kpi: 'big', label: 'Share on Opus or Fable', before: bigShare(bD), now: bigShare(aD), unit: '%', lower_is_better: true, goal: 'Goal: under 70%. Research and writing move to Sonnet' },
+      { kpi: 'start', label: 'Tokens loaded before you type', before: median(bS.map((r) => r.start_context_k)), now: median(aS.map((r) => r.start_context_k)), unit: 'K', lower_is_better: true, goal: 'Goal: under 50K. Every reply re-reads it' },
+      { kpi: 'sub', label: 'Subagent spend on Sonnet or Haiku', before: subCheap(bD), now: subCheap(aD), unit: '%', lower_is_better: false, goal: 'Goal: over 60%' },
+    ];
+  },
+});
+
+dash.calc('usage_moves', {
+  inputs: ['usage', 'usage_daily'],
+  title: 'Top moves',
+  description: 'Estimated weekly savings per change, from the audit findings and the start-up context size, ranked.',
+  fn: (usage, daily) => {
+    const days = Math.max(new Set(daily.map((r) => r.day)).size, 1);
+    const wk = (v) => v / days * 7;
+    const sum = (f) => usage.filter(f).reduce((s, r) => s + (r.saving || 0), 0);
+    const moves = [];
+    const startMed = usage.map((r) => r.start_context_k).sort((a, b) => a - b)[Math.floor(usage.length / 2)] || 0;
+    const startSave = usage.reduce((s, r) => s + r.read_cost * Math.max(0, r.start_context_k - 45) / Math.max((r.start_context_k + r.peak_context_k) / 2, 1), 0);
+    if (startMed > 50) moves.push({ move: 'Trim what loads at the start of every session', why: 'Each session starts with about ' + startMed + 'K tokens of tools, connectors, skills and instructions, before you type. Every reply re-reads them.', how: 'Turn off connectors, plugins and skills you have not used this month. Re-check this number tomorrow.', save: wk(startSave), n: usage.length });
+    const sub = sum((r) => r.finding.startsWith('Subagents ran'));
+    if (sub > 0) moves.push({ move: 'Run subagents on Sonnet or Haiku', why: usage.filter((r) => r.finding.startsWith('Subagents ran')).length + ' sessions sent search and reading subagents to Opus or Fable. Each new subagent re-loads the full setup on the expensive model.', how: 'Say "use Haiku subagents for searching and Sonnet subagents for research" in your request, or add model: sonnet to your custom agents.', save: wk(sub), n: usage.filter((r) => r.finding.startsWith('Subagents ran')).length });
+    const fab = sum((r) => r.finding === 'Fable did the building');
+    if (fab > 0) moves.push({ move: 'Plan on Fable, build on Opus', why: 'Fable did the edits in ' + usage.filter((r) => r.finding === 'Fable did the building').length + ' sessions. It costs more per token than Opus.', how: 'Keep Fable for the plan or the hardest bug. Switch the model menu to Opus before "go build it".', save: wk(fab), n: usage.filter((r) => r.finding === 'Fable did the building').length });
+    const light = usage.filter((r) => ['Research', 'Writing', 'Question'].includes(r.task) && (r.family === 'opus' || r.family === 'fable') && r.edits <= 2);
+    const read = light.reduce((s, r) => s + Math.max(0, r.cost - r.cost_as_sonnet), 0) * 0.6;
+    if (read > 0) moves.push({ move: 'Use Sonnet for research, writing and quick questions', why: light.length + ' research, writing or question sessions ran on Opus or Fable with almost no file edits. Sonnet costs less for writing and loading. Re-reading the conversation is the bigger cost, so context size matters more than the model.', how: 'Pick Sonnet in the model menu before you start research, a draft or a quick question. Switch up to Opus if the answer feels thin.', save: wk(read), n: light.length });
+    const longS = usage.filter((r) => r.replies >= 400);
+    const longSave = longS.reduce((s, r) => s + r.read_cost * 0.4, 0);
+    if (longS.length) moves.push({ move: 'Start fresh when a task is done', why: longS.length + ' sessions ran 400+ replies. Late replies re-read 300K+ tokens each, even for small asks.', how: 'Say "handoff" when one job is finished, then continue in a new session.', save: wk(longSave), n: longS.length });
+    moves.sort((a, b) => b.save - a.save);
+    moves.forEach((m, i) => { m.rank = i + 1; m.save = Math.round(m.save); });
+    return moves;
+  },
+});
+
+dash.calc('playbook', {
+  inputs: ['usage', 'usage_daily'],
+  title: 'Model playbook',
+  description: 'Recommended model and effort per job, with what your sessions of that job actually ran on.',
+  fn: (usage, daily) => PLAYBOOK.map(([task, use, fam, why]) => {
+    const isSub = task.startsWith('Subagents');
+    const rows = isSub ? [] : usage.filter((r) => r.task === task);
+    const c = {};
+    if (isSub) daily.forEach((r) => { c[r.family] = (c[r.family] || 0) + r.sub_cost; });
+    else rows.forEach((r) => { c[r.family] = (c[r.family] || 0) + 1; });
+    const n = Object.values(c).reduce((a, b) => a + b, 0);
+    const top = Object.entries(c).sort((a, b) => b[1] - a[1])[0];
+    const used = top && n ? FAM_LABEL[top[0]] + ' ' + Math.round(100 * top[1] / n) + '%' + (isSub ? ' of subagent spend' : '') : '–';
+    const order = { haiku: 0, sonnet: 1, opus: 2, fable: 3 };
+    const fit = !top ? 'none' : order[top[0]] > order[fam] ? 'over' : order[top[0]] < order[fam] ? 'under' : 'match';
+    return { task, use, why, used, fit, sessions: isSub ? null : rows.length, cost: Math.round(isSub ? n : rows.reduce((s, r) => s + r.cost, 0)) };
+  }),
+});
+
+dash.calc('gh_rising', {
+  inputs: ['repos'],
+  title: 'Rising on GitHub',
+  description: 'New repos (last 60 days) in your areas, ranked by stars gained per day.',
+  fn: (repos) => repos.filter((r) => r.source === 'new').sort((a, b) => (b.stars_per_day ?? 0) - (a.stars_per_day ?? 0))
+    .map((r, i) => ({ rank: i + 1, slug: r.slug, cat: r.cat, stars: r.stars, stars_per_day: r.stars_per_day, momentum_basis: r.momentum_basis, desc: r.desc, url: r.url, avatar: r.avatar, created: r.created, fits: String(r.fits || ''), flags: String(r.flags || ''), license: r.license })),
+});
+
+const SETUP_AREAS = [
+  ['Safety and testing', 'Check skills before they load'],
+  ['Claude skills', 'Claude Code skills'],
+  ['Token savers', 'Spend fewer tokens'],
+  ['Video', 'Video'],
+  ['Design and animation', 'Design and motion'],
+  ['Local AI', 'Local AI tools'],
+  ['Agents', 'Agents'],
+  ['Leads and free app swaps', 'Leads and free app swaps'],
+];
+
+dash.calc('setup', {
+  inputs: ['picks', 'local_board', 'repos'],
+  title: 'Recommended setup',
+  description: 'One pick per job: the best local, uncensored and value models, then per area what you have and what to add next.',
+  fn: (picks, local_board, repos) => {
+    const P = Object.fromEntries(picks.map((p) => [p.pick, p]));
+    const rows = [];
+    const lb = (pred) => local_board.find(pred);
+    const loc = P.local && lb((r) => r.model === P.local.model);
+    if (P.local) rows.push({ job: 'Everyday AI on your machine', have: !!(loc && loc.installed), title: P.local.model, logo: P.local.logo, avatar: null,
+      why: 'Smartest model that runs free on this machine, Intelligence ' + (P.local.intelligence ?? '–') + '.', cmd: loc ? 'ollama run ' + loc.pull : null, url: loc ? loc.ollama_url : null, next: null, next_url: null, next_kind: null, update: null });
+    const unc = lb((r) => r.is_uncensored && r.installed) || lb((r) => r.is_uncensored);
+    if (unc || P.uncensored) rows.push({ job: 'Uncensored on your machine', have: !!(unc && unc.installed), title: unc ? unc.model : P.uncensored.model, logo: unc ? unc.logo : P.uncensored.logo, avatar: null,
+      why: 'For drafts the normal model refuses. Check its facts: abliterated models lean overconfident.', cmd: unc ? 'ollama run ' + unc.pull : null, url: unc ? unc.ollama_url : null, next: null, next_url: null, next_kind: null, update: null });
+    if (P.value) rows.push({ job: 'Cheap API for big jobs', have: false, optional: true, title: P.value.model, logo: P.value.logo, avatar: null,
+      why: 'Most intelligence per dollar when a job is too big for your machine. ' + P.value.detail + '.', cmd: null, url: null, next: null, next_url: null, next_kind: null, update: null });
+    const order = { todo: 0, trial: 1 };
+    for (const [cat, job] of SETUP_AREAS) {
+      const inCat = repos.filter((r) => r.cat === cat);
+      const have = inCat.filter((r) => r.status === 'installed');
+      const reviewed = inCat.filter((r) => r.status in order).sort((a, b) => order[a.status] - order[b.status] || (b.stars_per_day ?? 0) - (a.stars_per_day ?? 0));
+      const fresh = inCat.filter((r) => (r.status === 'watch' || r.status === 'new') && !r.flags).sort((a, b) => (b.stars_per_day ?? 0) - (a.stars_per_day ?? 0));
+      const nx = reviewed[0] || fresh[0] || null;
+      const kind = !nx ? null : nx.status === 'todo' ? 'Fix' : nx.status === 'trial' ? 'Try next' : 'Worth a look';
+      const upd = have.filter((r) => r.new_release).map((r) => r.name + ' ' + r.release).join(', ') || null;
+      const lead = have[0] || nx;
+      if (!lead) continue;
+      rows.push({ job, have: have.length > 0, title: have.length ? have.slice(0, 3).map((r) => r.name).join(', ') + (have.length > 3 ? ' +' + (have.length - 3) + ' more' : '') : 'Nothing yet', logo: null, avatar: lead.avatar,
+        why: have.length ? (have[0].note || '') : 'You have nothing installed here yet.', cmd: null, url: have[0] ? have[0].url : null,
+        next: nx && nx !== lead ? nx.slug : (nx && !have.length ? nx.slug : null), next_url: nx ? nx.url : null, next_kind: kind, next_note: nx ? (nx.note || nx.desc) : null, update: upd });
+    }
+    rows.forEach((r, i) => { r.step = i + 1; });
+    return rows;
+  },
+});
+
+(() => {
+  const muted = () => getComputedStyle(document.documentElement).getPropertyValue('--cds-chart-muted').trim() || '#9aa0a6';
+  const fmt1 = d3.format('.1f');
+  // The free data has no brand logos: show the creator's initials on a stable color.
+  const logoEl = (name, small) => {
+    const s = document.createElement('span');
+    s.className = small ? 'logo sm' : 'logo';
+    if (name) {
+      let h = 0; for (const ch of String(name)) h = (h * 31 + ch.charCodeAt(0)) % 360;
+      s.textContent = String(name).replace(/[^A-Za-z0-9 ]/g, '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
+      s.style.background = 'hsl(' + h + ' 45% 42%)'; s.style.color = '#fff'; s.style.border = '0';
+      s.style.fontSize = small ? '9px' : '10px'; s.style.fontWeight = '700'; s.title = name;
+    }
+    return s;
+  };
+  const failed = (el, ...ids) => ids.some((id) => dash.data(id).status === 'error');
+  const showFail = (el) => { const d = document.createElement('div'); d.className = 'lb-fail'; d.textContent = 'Failed to load'; el.replaceChildren(d); };
+
+  // legend swatches and controls
+  dash.onData(() => {
+    document.querySelectorAll('[data-sw]').forEach((s) => { s.style.background = s.dataset.sw === 'muted' ? muted() : dash.colors[+s.dataset.sw]; });
+    document.querySelectorAll('.lb').forEach((r) => r.style.setProperty('--dash-c0', dash.colors[0]));
+    const p = dash.params();
+    document.querySelectorAll('#task').forEach((s) => { s.value = p.task || 'Overall'; });
+    document.querySelectorAll('#open-only').forEach((c) => { c.checked = !!p.openOnly; });
+    document.querySelectorAll('#fit-only').forEach((c) => { c.checked = p.fitOnly ?? (MD.fit_checked !== false); });
+  });
+  document.querySelectorAll('#task').forEach((s) => s.addEventListener('change', () => dash.setParams({ task: s.value })));
+  document.querySelectorAll('#open-only').forEach((c) => c.addEventListener('change', () => dash.setParams({ openOnly: c.checked })));
+  document.querySelectorAll('#fit-only').forEach((c) => c.addEventListener('change', () => dash.setParams({ fitOnly: c.checked })));
+
+  // A source that failed keeps its last good data; say so on the sections that use it.
+  dash.draw('stale', (el) => {
+    const g = dash.data('status');
+    const want = (el.dataset.stale || '').split(',');
+    const bad = g.status === 'ok' ? g.data.filter((r) => !r.ok && want.includes(r.source)) : [];
+    el.hidden = !bad.length;
+    el.textContent = bad.map((r) => r.source + ' could not be refreshed' + (r.stale_since ? ' since ' + new Date(r.stale_since).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '') + '. Showing the last good data. (' + r.error + ')').join(' ');
+  });
+  dash.draw('old-build', (el) => {
+    const hours = MD.generated ? (Date.now() - Date.parse(MD.generated)) / 36e5 : 0;
+    el.hidden = !(hours > 48);
+    el.textContent = 'This page was last rebuilt ' + Math.floor(hours / 24) + ' days ago. Check that the daily timer is still installed.';
+  });
+  dash.draw('ram-note', (el) => { el.textContent = MD.ram_gb ? ' (' + MD.ram_gb + ' GB)' : ''; });
+  dash.draw('pick-field', (el) => {
+    const g = dash.data('picks');
+    const row = g.status === 'ok' ? g.data.find((r) => r.pick === el.dataset.pick) : null;
+    if (!row || row[el.dataset.f] == null) { el.textContent = '—'; return; }
+    const v = row[el.dataset.f];
+    el.textContent = typeof v === 'number' ? fmt1(v) : v;
+  });
+  dash.draw('pick-logo', (el) => {
+    const g = dash.data('picks');
+    const row = g.status === 'ok' ? g.data.find((r) => r.pick === el.dataset.pick) : null;
+    el.replaceChildren(...(row ? [logoEl(row.logo)] : []));
+  });
+  dash.draw('asof', (el) => {
+    const g = dash.data(el.dataset.ds);
+    if (g.status !== 'ok') { el.textContent = '—'; return; }
+    let at = (g.meta.find((m) => m.label === 'Fetched') || {}).value;
+    if (el.dataset.ds === 'arena' && g.data[0]) at = g.data[0].published;
+    const d = at ? new Date(at.length === 10 ? at + 'T12:00:00Z' : at) : null;
+    el.textContent = d && !isNaN(d) ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+  });
+
+  // Quality vs price scatter
+  dash.draw('scatter', (el) => {
+    const g = dash.data('aa_models'), L = dash.data('local');
+    if (failed(el, 'aa_models')) return showFail(el);
+    if (g.status !== 'ok') { el.replaceChildren(); return; }
+    const runs = new Set(L.status === 'ok' ? L.data.filter((r) => r.mac_fit === 'Runs great' || r.mac_fit === 'Runs').map((r) => r.slug) : []);
+    const pts = g.data.filter((m) => m.intelligence != null && m.intelligence > 0);
+    const W = el.clientWidth || 800, H = 420, m = { t: 28, r: 16, b: 44, l: 44 };
+    const freeW = Math.min(70, W * 0.1);
+    const paid = pts.filter((p) => p.price_blended > 0);
+    const x = d3.scaleLog().domain(d3.extent(paid, (p) => p.price_blended)).nice().range([m.l + freeW + 12, W - m.r]);
+    const y = d3.scaleLinear().domain([0, d3.max(pts, (p) => p.intelligence)]).nice().range([H - m.b, m.t]);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Intelligence against price for each model');
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', freeW).attr('height', H - m.b - m.t).attr('rx', 4).attr('fill', 'var(--cds-chart-grid)').attr('opacity', 0.6);
+    svg.append('text').attr('x', m.l + freeW / 2).attr('y', H - m.b - 8).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').attr('font-size', 11).text('Free');
+    const [d0, d1] = x.domain();
+    const tv = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100].filter((v) => v >= d0 && v <= d1).filter((v, i, a) => a.length <= 6 || i % 2 === 0);
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(tv).tickFormat((v) => '$' + v)).attr('font-size', null).attr('font-family', null)
+      .call((a) => { a.select('.domain').attr('stroke', 'var(--cds-chart-axis)'); a.selectAll('line').attr('stroke', 'var(--cds-chart-axis)'); a.selectAll('text').attr('fill', 'var(--color-fg-muted)').attr('font-size', 11); });
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(6).tickSize(-(W - m.l - m.r))).attr('font-size', null).attr('font-family', null)
+      .call((a) => { a.select('.domain').remove(); a.selectAll('line').attr('stroke', 'var(--cds-chart-grid)'); a.selectAll('text').attr('fill', 'var(--color-fg-muted)').attr('font-size', 11); });
+    svg.append('text').attr('x', W - m.r).attr('y', H - 6).attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').attr('font-size', 11).text('Price per 1M tokens (log scale) →');
+    svg.append('text').attr('x', 0).attr('y', 4).attr('dy', '0.7em').attr('fill', 'var(--color-fg-muted)').attr('font-size', 11).text('↑ Intelligence');
+    const px = (p) => p.price_blended > 0 ? x(p.price_blended) : m.l + 8 + ((p.intelligence * 7919) % (freeW - 16));
+    const mut = muted();
+    const dots = svg.append('g').selectAll('circle').data(pts.sort((a, b) => a.open_weights - b.open_weights)).join('circle')
+      .attr('cx', px).attr('cy', (p) => y(p.intelligence)).attr('r', (p) => runs.has(p.slug) ? 6 : 4.5)
+      .attr('fill', (p) => p.open_weights ? dash.colors[0] : mut).attr('fill-opacity', (p) => p.open_weights ? 0.9 : 0.55)
+      .attr('stroke', (p) => runs.has(p.slug) ? 'var(--color-fg)' : 'none').attr('stroke-width', 2);
+    // label the best few: top 4 overall, best local, best value
+    const lab = new Set(pts.slice().sort((a, b) => b.intelligence - a.intelligence).slice(0, W < 600 ? 2 : 4).map((p) => p.slug));
+    const bestLocal = pts.filter((p) => runs.has(p.slug)).sort((a, b) => b.intelligence - a.intelligence)[0];
+    if (bestLocal) lab.add(bestLocal.slug);
+    const val = paid.filter((p) => p.intelligence >= 25).sort((a, b) => b.intelligence / b.price_blended - a.intelligence / a.price_blended)[0];
+    if (val) lab.add(val.slug);
+    const placed = [];
+    svg.append('g').selectAll('text').data(pts.filter((p) => lab.has(p.slug))).join('text')
+      .attr('fill', 'var(--color-fg)').attr('font-size', 11).attr('font-weight', 600)
+      .text((p) => p.short)
+      .each(function (p) {
+        const w = this.getComputedTextLength();
+        let tx = px(p) + 9, ty = y(p.intelligence) + 4;
+        if (tx + w > W - m.r) tx = Math.max(m.l + 2, px(p) - 9 - w);
+        const hit = (yy) => placed.some((q) => Math.abs(q.y - yy) < 14 && tx < q.x + q.w + 6 && tx + w + 6 > q.x);
+        const fits = (yy) => yy >= m.t + 10 && yy <= H - m.b - 4 && tx >= m.l && tx + w <= W - m.r && !hit(yy);
+        const tryY = [ty, ty - 14, ty + 14, ty - 28, ty + 28].find(fits);
+        if (tryY == null) { d3.select(this).remove(); return; }
+        placed.push({ x: tx, y: tryY, w });
+        d3.select(this).attr('x', tx).attr('y', tryY);
+      });
+    const tip = document.createElement('div'); tip.className = 'lb-tip'; tip.hidden = true;
+    dots.on('pointerenter pointermove', (ev, p) => {
+      const t1 = document.createElement('div'); t1.className = 't1'; t1.textContent = p.creator + (p.open_weights ? ' · open weights' : ' · closed');
+      const t2 = document.createElement('div'); t2.style.fontWeight = '600'; t2.textContent = p.model;
+      const t3 = document.createElement('div'); t3.textContent = 'Intelligence ' + fmt1(p.intelligence) + ' · ' + (p.price_blended > 0 ? '$' + d3.format('.2f')(p.price_blended) + ' / 1M' : 'free') + (runs.has(p.slug) ? ' · runs on your machine' : '');
+      tip.replaceChildren(t1, t2, t3); tip.hidden = false;
+      const [mx, my] = d3.pointer(ev, el);
+      tip.style.left = Math.min(mx + 12, el.clientWidth - 270) + 'px'; tip.style.top = Math.max(0, my - 60) + 'px';
+    }).on('pointerleave', () => { tip.hidden = true; });
+    el.replaceChildren(svg.node(), tip);
+  });
+
+  // Local table
+  dash.draw('local-rows', (tb) => {
+    const g = dash.data('local_board');
+    if (g.status !== 'ok') { tb.replaceChildren(); return; }
+    const fitOnly = dash.params().fitOnly ?? (MD.fit_checked !== false);
+    const rows = g.data.filter((r) => !fitOnly || r.mac_fit !== 'Too big');
+    const max = d3.max(g.data, (r) => r.intelligence) || 1;
+    const top = rows.find((r) => r.intelligence != null);
+    tb.replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr'); tr.dataset.key = r.pull;
+      const td = (cls) => { const c = document.createElement('td'); if (cls) c.className = cls; tr.append(c); return c; };
+      td('num').textContent = r.rank;
+      const mc = td(); const cm = document.createElement('div'); cm.className = 'cell-model';
+      const nm = document.createElement('div'); const b = document.createElement('b'); b.textContent = r.model; const sub = document.createElement('span'); sub.className = 'sub'; sub.textContent = [r.creator, r.setting && 'best at ' + r.setting].filter(Boolean).join(' · ');
+      if (r.is_uncensored) sub.textContent = r.setting;
+      nm.append(b, sub); cm.append(logoEl(r.logo, true), nm); mc.append(cm);
+      const ic = td(); const bar = document.createElement('div'); bar.className = 'bar';
+      if (r.intelligence != null) { const i = document.createElement('i'); i.style.width = Math.max(4, 90 * r.intelligence / max) + 'px'; if (r === top) i.className = 'hi'; const s = document.createElement('span'); s.textContent = fmt1(r.intelligence); bar.append(i, s); }
+      else { const s = document.createElement('span'); s.className = 'lb-muted'; s.textContent = 'Not benchmarked'; bar.append(s); }
+      ic.append(bar);
+      td('num').textContent = r.arena_elo == null ? '–' : d3.format(',')(r.arena_elo);
+      td('num').textContent = r.download_gb == null ? '–' : (r.download_gb < 1 ? d3.format('.1f')(r.download_gb) : Math.round(r.download_gb)) + ' GB';
+      const fc = td(); const fp = document.createElement('span'); fp.className = 'pill ' + ({ 'Runs great': 'ok', Runs: 'warn', 'Too big': 'bad' }[r.mac_fit] || 'mute'); fp.textContent = r.mac_fit; fc.append(fp);
+      const inst = td(); const ip = document.createElement('span'); ip.className = 'pill ' + (r.installed ? 'ok' : 'mute'); ip.textContent = r.installed ? 'Installed' : 'Not yet'; inst.append(ip);
+      const uc = td();
+      if (r.uncensored_url && !r.is_uncensored) { const a = document.createElement('a'); a.href = r.uncensored_url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'huihui-ai'; uc.append(a); }
+      else uc.textContent = r.is_uncensored ? 'This is one' : '–';
+      const cc = td(); const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'cmd'; btn.textContent = 'ollama pull ' + r.pull;
+      btn.title = 'Copy'; btn.addEventListener('click', () => {
+        const txt = 'ollama pull ' + r.pull;
+        const done = () => { btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = txt; }, 1400); };
+        try { navigator.clipboard.writeText(txt).then(done, () => { const rg = document.createRange(); rg.selectNodeContents(btn); getSelection().removeAllRanges(); getSelection().addRange(rg); }); } catch (e) { /* select fallback */ }
+      });
+      cc.append(btn);
+      return tr;
+    }));
+  });
+
+  // Arena bars
+  dash.draw('arena-bars', (el) => {
+    const g = dash.data('arena');
+    if (failed(el, 'arena')) return showFail(el);
+    if (g.status !== 'ok') { el.replaceChildren(); return; }
+    const p = dash.params();
+    const cat = p.task || 'Overall';
+    let rows = g.data.filter((r) => r.category === cat && (!p.openOnly || r.open)).sort((a, b) => b.elo - a.elo).slice(0, 14);
+    const W = el.clientWidth || 800, rowH = 26, m = { t: 8, r: 56, b: 28, l: Math.min(240, W * 0.42) };
+    const H = m.t + m.b + rows.length * rowH;
+    const lo = d3.min(rows, (r) => r.elo_low) - 15, hi = d3.max(rows, (r) => r.elo_high) + 5;
+    const x = d3.scaleLinear().domain([lo, hi]).nice().range([m.l, W - m.r]);
+    const y = d3.scaleBand().domain(rows.map((r) => r.model)).range([m.t, H - m.b]).padding(0.28);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Top models for ' + cat);
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(5).tickSize(-(H - m.b - m.t))).attr('font-size', null).attr('font-family', null)
+      .call((a) => { a.select('.domain').remove(); a.selectAll('line').attr('stroke', 'var(--cds-chart-grid)'); a.selectAll('text').attr('fill', 'var(--color-fg-muted)').attr('font-size', 11); });
+    const mut = muted();
+    const gr = svg.append('g').selectAll('g').data(rows).join('g');
+    gr.append('rect').attr('x', m.l).attr('y', (r) => y(r.model)).attr('height', y.bandwidth()).attr('width', (r) => Math.max(2, x(r.elo) - m.l)).attr('rx', 4)
+      .attr('fill', (r) => r.open ? dash.colors[0] : mut);
+    gr.append('line').attr('x1', (r) => x(r.elo_low)).attr('x2', (r) => x(r.elo_high)).attr('y1', (r) => y(r.model) + y.bandwidth() / 2).attr('y2', (r) => y(r.model) + y.bandwidth() / 2).attr('stroke', 'var(--color-fg)').attr('stroke-width', 1.5);
+    gr.append('text').attr('x', (r) => Math.min(x(r.elo_high) + 6, W - 34)).attr('y', (r) => y(r.model) + y.bandwidth() / 2).attr('dy', '0.35em').attr('fill', 'var(--color-fg)').attr('font-size', 11).text((r) => r.elo);
+    gr.append('text').attr('x', m.l - 8).attr('y', (r) => y(r.model) + y.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').attr('fill', 'var(--color-fg)').attr('font-size', 12)
+      .text((r) => r.model).each(function () { let t = this.textContent; while (this.getComputedTextLength() > m.l - 14 && t.length > 4) { t = t.slice(0, -2); this.textContent = t + '…'; } })
+      .append('title').text((r) => r.model);
+    el.replaceChildren(svg.node());
+  });
+
+  // All models table
+  let sortKey = 'intelligence', sortDir = -1;
+  document.querySelectorAll('#all [data-sort]').forEach((b) => b.addEventListener('click', () => {
+    const k = b.dataset.sort; sortDir = k === sortKey ? -sortDir : (k === 'model' || k === 'price_blended' ? 1 : -1); sortKey = k;
+    document.querySelectorAll('#all th').forEach((th) => th.removeAttribute('aria-sort'));
+    b.closest('th').setAttribute('aria-sort', sortDir > 0 ? 'ascending' : 'descending');
+    dash.draw('all-rows');
+  }));
+  dash.draw('all-rows', (tb) => {
+    const g = dash.data('aa_models');
+    if (g.status !== 'ok') { tb.replaceChildren(); return; }
+    const top = g.data.slice().sort((a, b) => (b.intelligence ?? 0) - (a.intelligence ?? 0)).slice(0, 60);
+    const v = (r) => r[sortKey];
+    top.sort((a, b) => { const A = v(a), B = v(b); if (A == null) return 1; if (B == null) return -1; return (typeof A === 'string' ? A.localeCompare(B) : A - B) * sortDir; });
+    const pct = (n) => n == null ? '–' : Math.round(n) + '%';
+    tb.replaceChildren(...top.map((r) => {
+      const tr = document.createElement('tr'); tr.dataset.key = r.slug;
+      const td = (cls) => { const c = document.createElement('td'); if (cls) c.className = cls; tr.append(c); return c; };
+      const mc = td(); const cm = document.createElement('div'); cm.className = 'cell-model';
+      const nm = document.createElement('div'); const b = document.createElement('b'); b.textContent = r.model; const sub = document.createElement('span'); sub.className = 'sub'; sub.textContent = r.creator || '';
+      nm.append(b, sub); cm.append(logoEl(r.creator, true), nm); mc.append(cm);
+      const wc = td(); const wp = document.createElement('span'); wp.className = 'pill ' + (r.open_weights ? 'ok' : 'mute'); wp.textContent = r.open_weights ? 'Open' : 'Closed'; wc.append(wp);
+      td('num').textContent = r.intelligence == null ? '–' : fmt1(r.intelligence);
+      td('num').textContent = r.price_blended == null ? '–' : (r.price_blended === 0 ? 'Free' : '$' + d3.format('.2f')(r.price_blended));
+      td('num').textContent = r.speed_tps == null ? '–' : d3.format(',')(r.speed_tps);
+      td('num').textContent = r.price_cache_read == null ? '–' : '$' + d3.format('.2f')(r.price_cache_read);
+      td('num').textContent = r.ttft_s == null ? '–' : d3.format('.1f')(r.ttft_s);
+      return tr;
+    }));
+  });
+  const mk = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+  const link = (href, txt) => { const a = mk('a', null, txt); a.href = href; a.target = '_blank'; a.rel = 'noopener'; return a; };
+  const avImg = (src, lg) => { if (!src) return mk('span', 'av' + (lg ? ' lg' : '')); const i = mk('img', 'av' + (lg ? ' lg' : '')); i.src = src; i.alt = ''; return i; };
+  const copyBtn = (txt) => {
+    const btn = mk('button', 'cmd', txt); btn.type = 'button'; btn.title = 'Copy';
+    btn.addEventListener('click', () => { try { navigator.clipboard.writeText(txt).then(() => { btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = txt; }, 1400); }); } catch (e) { /* ignore */ } });
+    return btn;
+  };
+  // ---- Usage audit
+  const famColor = (f) => ({ fable: dash.colors[3] || '#c2410c', opus: dash.colors[0], sonnet: dash.colors[1] || '#0e9f6e', haiku: dash.colors[2] || '#a855f7' }[f] || muted());
+  const money = (v) => v == null ? '–' : '$' + (v >= 100 ? d3.format(',.0f')(v) : v.toFixed(v < 10 ? 2 : 1));
+  const dayStr = (d) => d.toLocaleDateString('en-CA', MD.time_zone ? { timeZone: MD.time_zone } : {});
+  dash.draw('u-banner', (el) => {
+    const g = dash.data('usage_daily');
+    const active = new Set(g.status === 'ok' ? g.data.filter(isRecent).map((r) => r.day) : []);
+    const dots = mk('span', 'u-days'), now = Date.now();
+    for (let i = RECENT_DAYS - 1; i >= 0; i--) { const d = dayStr(new Date(now - i * 864e5)); const x = mk('i'); if (active.has(d)) x.className = 'on'; if (i === 0) x.classList.add('today'); x.title = d; dots.append(x); }
+    el.replaceChildren(mk('b', null, 'Last 7 days against the 28 days before'), dots, mk('span', 'lb-muted', 'The 28 days before are your baseline.'));
+  });
+  dash.draw('u-kpis', (el) => {
+    const g = dash.data('usage_kpis');
+    if (failed(el, 'usage', 'usage_daily')) return showFail(el);
+    if (g.status !== 'ok') { el.replaceChildren(); return; }
+    const f = (v, u) => v == null ? '–' : u === '$' ? money(v) : Math.round(v) + (u === '%' ? '%' : 'K');
+    el.replaceChildren(...g.data.map((k) => {
+      const c = mk('article', 'lb-card u-kpi'); c.dataset.key = k.kpi;
+      c.append(mk('p', 'pick-k', k.label));
+      const cur = k.now ?? k.before;
+      c.append(mk('p', 'big', f(cur, k.unit)));
+      let cmp;
+      if (k.now == null) cmp = mk('p', 'cmp lb-muted', 'Baseline only. No sessions in the last 7 days yet.');
+      else {
+        const better = k.lower_is_better ? k.now < k.before : k.now > k.before;
+        const delta = k.before ? Math.round(100 * (k.now - k.before) / k.before) : 0;
+        cmp = mk('p', 'cmp ' + (better ? 'good' : 'bad'), (delta > 0 ? '+' : '') + delta + '% vs baseline ' + f(k.before, k.unit));
+      }
+      c.append(cmp, mk('p', 'goal', k.goal));
+      return c;
+    }));
+  });
+  dash.draw('u-moves', (ol) => {
+    const g = dash.data('usage_moves');
+    if (g.status !== 'ok') { ol.replaceChildren(); return; }
+    ol.replaceChildren(...g.data.map((m) => {
+      const li = mk('li', 'u-move'); li.dataset.key = String(m.rank);
+      li.append(mk('span', 'step-n', String(m.rank)));
+      const b = mk('div'); b.append(mk('b', null, m.move), mk('p', 'step-why', m.why), mk('p', 'how', m.how));
+      const s = mk('div', 'save'); s.append(mk('b', null, '~' + money(m.save)), mk('span', 'lb-muted', 'per week'));
+      li.append(b, s);
+      return li;
+    }));
+  });
+  const splitParts = () => {
+    const g = dash.data('usage_daily');
+    if (g.status !== 'ok') return null;
+    const t = (k) => g.data.reduce((s, r) => s + (r[k] || 0), 0);
+    const parts = [
+      { k: 'read', label: 'Re-reading the conversation', v: t('read_cost'), note: 'Every reply re-reads everything so far (cache reads). Grows with long sessions and big start-up loads.', c: dash.colors[0] },
+      { k: 'write', label: 'Loading new context', v: t('write_cost'), note: 'First read of files, tool results and each new subagent\'s setup (cache writes).', c: dash.colors[1] || '#0e9f6e' },
+      { k: 'out', label: 'Writing answers and code', v: t('out_cost'), note: 'What Claude actually writes, thinking included. The useful part.', c: muted() },
+    ];
+    const tot = parts.reduce((s, p) => s + p.v, 0) || 1;
+    parts.forEach((p) => { p.pct = Math.round(100 * p.v / tot); });
+    return parts;
+  };
+  dash.draw('u-split', (el) => {
+    const parts = splitParts(); if (!parts) { el.replaceChildren(); return; }
+    el.replaceChildren(...parts.map((p) => { const d = mk('div', null, p.pct >= 8 ? p.pct + '%' : ''); d.style.flex = String(Math.max(p.v, 0.001)); d.style.background = p.c; d.title = p.label + ': ' + p.pct + '%'; return d; }));
+  });
+  dash.draw('u-split-key', (el) => {
+    const parts = splitParts(); if (!parts) { el.replaceChildren(); return; }
+    el.replaceChildren(...parts.map((p) => { const d = mk('div'); const h = mk('b'); const sw = mk('i', 'sw'); sw.style.background = p.c; sw.style.marginRight = '6px'; h.append(sw, p.label + ' · ' + p.pct + '% · ' + money(p.v)); d.append(h, mk('span', null, p.note)); return d; }));
+  });
+  dash.draw('u-legend', (el) => {
+    el.replaceChildren(...['opus', 'fable', 'sonnet', 'haiku'].map((f) => { const s = mk('span'); const i = mk('i', 'sw'); i.style.background = famColor(f); s.append(i, FAM_LABEL[f]); return s; }));
+  });
+  dash.draw('u-daily', (el) => {
+    const g = dash.data('usage_daily');
+    if (failed(el, 'usage_daily')) return showFail(el);
+    if (g.status !== 'ok') { el.replaceChildren(); return; }
+    const fams = ['opus', 'fable', 'sonnet', 'haiku'];
+    const end = new Date(), days = [];
+    for (let i = 34; i >= 0; i--) days.push(dayStr(new Date(end.getTime() - i * 864e5)));
+    const recentStart = days[days.length - RECENT_DAYS];
+    const by = new Map(days.map((d) => [d, Object.fromEntries(fams.map((f) => [f, 0]))]));
+    g.data.forEach((r) => { if (by.has(r.day) && fams.includes(r.family)) by.get(r.day)[r.family] += r.cost; });
+    const data = days.map((d) => ({ day: d, ...by.get(d) }));
+    const series = d3.stack().keys(fams)(data);
+    const W = el.clientWidth || 800, H = 300, m = { t: 22, r: 12, b: 26, l: 52 };
+    const x = d3.scaleBand().domain(days).range([m.l, W - m.r]).padding(0.25);
+    const y = d3.scaleLinear().domain([0, d3.max(data, (d) => fams.reduce((s, f) => s + d[f], 0)) || 1]).nice().range([H - m.b, m.t]);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Daily spend by model');
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat((v) => '$' + d3.format(',')(v)).tickSize(-(W - m.l - m.r)))
+      .call((a) => { a.select('.domain').remove(); a.selectAll('line').attr('stroke', 'var(--cds-chart-grid)'); a.selectAll('text').attr('fill', 'var(--color-fg-muted)').attr('font-size', 11); });
+    const step = Math.ceil(days.length / Math.max(2, Math.floor((W - m.l) / 60)));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(days.filter((d, i) => i % step === 0)).tickFormat((d) => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })).tickSize(0))
+      .call((a) => { a.select('.domain').remove(); a.selectAll('text').attr('fill', 'var(--color-fg-muted)').attr('font-size', 11).attr('dy', '1em'); });
+    svg.append('g').selectAll('g').data(series).join('g').attr('fill', (s) => famColor(s.key))
+      .selectAll('rect').data((s) => s.map((p) => ({ p, key: s.key }))).join('rect')
+      .attr('x', (d) => x(d.p.data.day)).attr('width', x.bandwidth()).attr('y', (d) => y(d.p[1])).attr('height', (d) => Math.max(0, y(d.p[0]) - y(d.p[1])))
+      .append('title').text((d) => d.p.data.day + ' · ' + FAM_LABEL[d.key] + ': ' + money(d.p.data[d.key]));
+    if (x(recentStart) != null) {
+      const ax = x(recentStart) - x.step() * x.padding() / 2;
+      svg.append('line').attr('x1', ax).attr('x2', ax).attr('y1', m.t - 6).attr('y2', H - m.b).attr('stroke', 'var(--color-fg)').attr('stroke-dasharray', '4 3');
+      svg.append('text').attr('x', Math.min(ax + 6, W - 90)).attr('y', m.t - 8).attr('fill', 'var(--color-fg)').attr('font-size', 11).text('Last 7 days');
+    }
+    el.replaceChildren(svg.node());
+  });
+  dash.draw('playbook-rows', (tb) => {
+    const g = dash.data('playbook');
+    if (g.status !== 'ok') { tb.replaceChildren(); return; }
+    tb.replaceChildren(...g.data.map((r) => {
+      const tr = mk('tr'); tr.dataset.key = r.task;
+      const td = (cls) => { const c = mk('td', cls); tr.append(c); return c; };
+      td().append(mk('b', null, r.task));
+      td().textContent = r.use;
+      const w = td(); w.textContent = r.why; w.style.minWidth = '18rem';
+      const u = td(); u.append(mk('span', null, r.used + ' '));
+      if (r.fit !== 'none') u.append(mk('span', 'pill ' + (r.fit === 'match' ? 'ok' : r.fit === 'over' ? 'warn' : 'mute'), r.fit === 'match' ? 'Right fit' : r.fit === 'over' ? 'Over-powered' : 'Lighter'));
+      td('num').textContent = r.sessions || '–';
+      td('num').textContent = r.cost ? money(r.cost) : '–';
+      return tr;
+    }));
+  });
+  dash.draw('usage-rows', (tb) => {
+    const g = dash.data('usage');
+    if (g.status !== 'ok') { tb.replaceChildren(); return; }
+    const cut = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
+    const rows = g.data.filter((r) => r.day >= cut).sort((a, b) => b.cost - a.cost).slice(0, 25);
+    tb.replaceChildren(...rows.map((r) => {
+      const tr = mk('tr'); tr.dataset.key = r.session;
+      const td = (cls) => { const c = mk('td', cls); tr.append(c); return c; };
+      const t = td(); t.append(mk('b', null, r.title || r.project || 'Session ' + r.session), mk('span', 'gh-desc', (r.project ? r.project + ' · ' : '') + new Date(r.day + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })));
+      td().textContent = r.task;
+      td().textContent = (FAM_LABEL[r.family] || r.model) + ' · ' + r.effort;
+      td('num').textContent = money(r.cost);
+      td('num').textContent = d3.format(',')(r.replies);
+      td('num').textContent = r.sub_cost ? money(r.sub_cost) : '–';
+      const f = td(); if (r.finding && r.finding !== 'Good fit') { f.append(mk('span', 'tag warn', r.finding)); f.title = r.advice; } else f.append(mk('span', 'pill ok', 'Good fit'));
+      return tr;
+    }));
+  });
+  // ---- Budget tiers
+  dash.draw('tiers', (el) => {
+    const g = dash.data('tiers');
+    if (failed(el, 'aa_models', 'local')) return showFail(el);
+    if (g.status !== 'ok') { el.replaceChildren(); return; }
+    const max = Math.max(60, ...g.data.map((r) => r.intelligence));
+    const pct = (v) => (100 * v / max) + '%';
+    const W = el.clientWidth || 800;
+    const usd = (v) => '$' + (v < 1 ? v.toFixed(2) : v.toFixed(1));
+    const out = g.data.map((r) => {
+      const row = mk('div', 'tier'); row.dataset.key = r.band;
+      const k = mk('div', 'tier-k'); k.append(mk('b', null, r.band), mk('span', null, r.sub)); row.append(k);
+      const tr = mk('div', 'tier-track');
+      const bar = mk('div', 'tier-bar' + (r.kind === 'mac' ? ' mac' : r.is_best ? ' best' : '')); bar.style.width = pct(r.intelligence);
+      bar.append(mk('span', 'v', fmt1(r.intelligence)));
+      const lab = mk('div', 'tier-lab'); lab.append(logoEl(r.logo, true), mk('b', null, r.model));
+      lab.append(mk('span', 'd', r.kind === 'mac' ? 'Free' : usd(r.price) + ' / 1M'));
+      if (r.gain != null && r.gain > 0) lab.append(mk('span', 'tier-gain', '+' + fmt1(r.gain)));
+      if (r.gain != null && r.gain <= 0) lab.append(mk('span', 'd', 'no gain'));
+      tr.append(bar, lab);
+      row.append(tr);
+      return { row, tr, bar, lab };
+    });
+    const axis = mk('div', 'tier-axis'); axis.append(mk('span'), mk('span', null, 'Intelligence Index, 0 to ' + Math.round(max) + ' · dashed line: smartest anywhere'));
+    el.replaceChildren(...out.map((o) => o.row), axis);
+    const best = Math.max(...g.data.map((r) => r.intelligence));
+    out.forEach(({ tr, bar, lab }) => {
+      const c = mk('div', 'tier-ceil'); c.style.left = pct(best); tr.append(c);
+      const trackW = tr.clientWidth, barW = bar.offsetWidth, labW = lab.scrollWidth;
+      if (barW + labW + 4 <= trackW) lab.style.left = barW + 'px';
+      else { lab.style.left = '0'; lab.style.top = '34px'; lab.style.height = '20px'; tr.style.height = '58px'; }
+    });
+  });
+  dash.draw('tiers-note', (el) => {
+    const g = dash.data('tiers');
+    if (g.status !== 'ok' || !g.data.length) { el.textContent = ''; return; }
+    const mac = g.data.find((r) => r.kind === 'mac'), best = g.data.reduce((a, b) => (b.intelligence > a.intelligence ? b : a));
+    const cheap = g.data.filter((r) => r.kind === 'hosted' && r.intelligence >= best.intelligence * 0.9).sort((a, b) => a.price - b.price)[0];
+    const parts = [];
+    if (mac) parts.push('Your Mac gets ' + Math.round(100 * mac.intelligence / best.intelligence) + '% of the top score for free.');
+    if (cheap && cheap !== best) parts.push(cheap.band + ' already gets within 10% of the top.');
+    el.textContent = parts.join(' ');
+  });
+  // ---- Setup checklist
+  dash.draw('setup-count', (el) => {
+    const g = dash.data('setup');
+    if (g.status !== 'ok') { el.textContent = '—'; return; }
+    const need = g.data.filter((r) => !r.optional);
+    el.textContent = need.filter((r) => r.have).length + ' of ' + need.length + ' in place';
+  });
+  dash.draw('setup-bar', (el) => {
+    const g = dash.data('setup');
+    if (g.status !== 'ok') { el.style.width = '0'; return; }
+    const need = g.data.filter((r) => !r.optional);
+    el.style.width = (100 * need.filter((r) => r.have).length / Math.max(need.length, 1)) + '%';
+  });
+  dash.draw('setup-list', (ol) => {
+    const g = dash.data('setup');
+    if (failed(ol, 'repos', 'aa_models', 'local')) return showFail(ol);
+    if (g.status !== 'ok') { ol.replaceChildren(); return; }
+    ol.replaceChildren(...g.data.map((r) => {
+      const li = mk('li'); li.dataset.key = String(r.step);
+      li.append(mk('span', 'step-n' + (r.have ? ' done' : ''), r.have ? '✓' : String(r.step)));
+      const body = mk('div');
+      body.append(mk('p', 'step-k', r.job));
+      const m = mk('div', 'step-m');
+      m.append(r.logo ? logoEl(r.logo, true) : avImg(r.avatar));
+      const t = mk('b', null, r.title);
+      if (r.url) { const a = link(r.url, ''); a.append(t); m.append(a); } else m.append(t);
+      m.append(mk('span', 'pill ' + (r.have ? 'ok' : r.optional ? 'mute' : 'warn'), r.have ? 'Have it' : r.optional ? 'Optional' : 'Not yet'));
+      if (r.update) m.append(mk('span', 'tag warn', 'New release: ' + r.update));
+      body.append(m, mk('p', 'step-why', r.why));
+      if (r.next) {
+        const n = mk('p', 'step-next');
+        n.append(mk('span', 'tag' + (r.next_kind === 'Fix' ? ' warn' : ''), r.next_kind), link(r.next_url, r.next));
+        if (r.next_note) n.append(mk('span', 'lb-muted', r.next_note));
+        body.append(n);
+      }
+      li.append(body);
+      const act = mk('div', 'step-act');
+      if (r.cmd) act.append(copyBtn(r.cmd));
+      li.append(act);
+      return li;
+    }));
+  });
+
+  // ---- Rising cards
+  const CATS = ['All', 'Claude skills', 'Token savers', 'Local AI', 'Video', 'Design and animation', 'Agents', 'Leads and free app swaps'];
+  dash.draw('gh-chips', (el) => {
+    const cur = dash.params().ghCat || 'All';
+    el.replaceChildren(...CATS.map((c) => {
+      const b = mk('button', 'chip', c); b.type = 'button'; b.setAttribute('aria-pressed', String(c === cur));
+      b.addEventListener('click', () => dash.setParams({ ghCat: c }));
+      return b;
+    }));
+  });
+  const perDay = (r) => r.stars_per_day == null ? '–' : '+' + d3.format(',')(Math.round(r.stars_per_day)) + (r.momentum_basis === 'lifetime' ? ' avg' : '') + ' / day';
+  // search, time window, minimum stars and sort, kept in the page's params
+  const GH_CTL = { 'gh-q': 'ghQ', 'gh-win': 'ghWin', 'gh-min': 'ghMin', 'gh-sort': 'ghSort' };
+  const GH_DEF = { ghQ: '', ghWin: '60', ghMin: '0', ghSort: 'pace' };
+  Object.entries(GH_CTL).forEach(([id, k]) => document.querySelectorAll('#' + id).forEach((c) => c.addEventListener(c.tagName === 'INPUT' ? 'input' : 'change', () => dash.setParams({ [k]: c.value }))));
+  dash.onData(() => Object.entries(GH_CTL).forEach(([id, k]) => document.querySelectorAll('#' + id).forEach((c) => { const v = dash.params()[k] ?? GH_DEF[k]; if (c.value !== String(v) && document.activeElement !== c) c.value = v; })));
+  const ghFiltered = (data) => {
+    const P = { ...GH_DEF, ...dash.params() }, cur = P.ghCat || 'All';
+    const q = String(P.ghQ || '').trim().toLowerCase();
+    const since = new Date(Date.now() - (+P.ghWin) * 864e5).toISOString().slice(0, 10);
+    const L = dash.data('gh_ledger'); const gained = new Map(L.status === 'ok' ? L.data.map((e) => [e.slug, e.gained_since_found]) : []);
+    const sorters = { pace: (r) => -(r.stars_per_day ?? 0), stars: (r) => -r.stars, gained: (r) => -(gained.get(r.slug) ?? 0), newest: (r) => -Date.parse(r.created) };
+    const key = sorters[P.ghSort] || sorters.pace;
+    return data.filter((r) => (cur === 'All' || r.cat === cur) && String(r.created) >= since && r.stars >= +P.ghMin
+      && (!q || (r.slug + ' ' + r.desc + ' ' + (r.fits || '')).toLowerCase().includes(q)))
+      .sort((a, b) => key(a) - key(b));
+  };
+  dash.draw('gh-count', (el) => {
+    const g = dash.data('gh_rising'); if (g.status !== 'ok') { el.textContent = ''; return; }
+    const n = ghFiltered(g.data).length; el.textContent = n + ' of ' + g.data.length + ' repos' + (n > 24 ? ' · showing top 24' : '');
+  });
+  dash.draw('gh-cards', (el) => {
+    const g = dash.data('gh_rising');
+    if (failed(el, 'repos')) return showFail(el);
+    if (g.status !== 'ok') { el.replaceChildren(); return; }
+    const cur = dash.params().ghCat || 'All';
+    const rows = ghFiltered(g.data).slice(0, 24);
+    const H = dash.data('gh_history');
+    const starsBy = H.status === 'ok' ? d3.group(H.data.slice().sort((a, b) => a.day < b.day ? -1 : 1), (h) => h.slug) : new Map();
+    if (!rows.length) { el.replaceChildren(mk('p', 'lb-muted', 'No repos match these filters. Try a wider time window or fewer stars.')); return; }
+    el.replaceChildren(...rows.map((r) => {
+      const c = mk('article', 'gh-card'); c.dataset.key = r.slug;
+      const h = mk('div', 'gh-h'); h.append(avImg(r.avatar, true));
+      const nm = mk('div'); nm.style.minWidth = '0'; nm.append(link(r.url, r.slug.split('/')[1]), mk('span', 'sub', r.slug.split('/')[0] + ' · ' + r.cat));
+      h.append(nm); c.append(h, mk('p', 'gh-d', r.desc));
+      const s = mk('div', 'gh-s'); s.append(mk('span', 'big', perDay(r)), mk('span', 'lb-muted', d3.format(',')(r.stars) + ' stars · made ' + new Date(r.created + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })));
+      c.append(s);
+      const pts = (starsBy.get(r.slug) || []).map((h) => h.stars);
+      if (pts.length > 1) {
+        const sx = d3.scaleLinear().domain([0, pts.length - 1]).range([1, 199]), sy = d3.scaleLinear().domain(d3.extent(pts)).range([26, 2]);
+        const sp = d3.create('svg').attr('class', 'gh-spark').attr('viewBox', '0 0 200 28').attr('preserveAspectRatio', 'none').attr('role', 'img').attr('aria-label', 'Stars over ' + pts.length + ' days');
+        sp.append('path').attr('d', d3.line().x((v, i) => sx(i)).y(sy)(pts)).attr('fill', 'none').attr('stroke', catColor(r.cat)).attr('stroke-width', 1.5).attr('vector-effect', 'non-scaling-stroke');
+        c.append(sp.node());
+      }
+      const tags = mk('div', 'chips');
+      (r.fits ? r.fits.split(', ') : []).forEach((f) => tags.append(mk('span', 'tag', f)));
+      (r.flags ? r.flags.split(', ') : []).forEach((f) => tags.append(mk('span', 'tag warn', f)));
+      if (tags.childNodes.length) c.append(tags);
+      return c;
+    }));
+  });
+
+  // ---- Rising: analytics and history
+  const CAT_ORDER = ['Claude skills', 'Token savers', 'Local AI', 'Video', 'Design and animation', 'Agents', 'Leads and free app swaps', 'Safety and testing'];
+  const catColor = (c) => { const i = CAT_ORDER.indexOf(c); return i < 0 ? muted() : (dash.colors[i] || muted()); };
+  const shortDay = (d) => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const axisStyle = (a) => { a.select('.domain').remove(); a.selectAll('line').attr('stroke', 'var(--cds-chart-grid)'); a.selectAll('text').attr('fill', 'var(--color-fg-muted)').attr('font-size', 11); };
+  const fewDays = (el, n) => { if (n >= 2) return false; el.replaceChildren(mk('p', 'lb-muted', 'Needs at least 2 days of history. Fills in as the daily check runs.')); return true; };
+
+  dash.draw('gh-kpis', (el) => {
+    if (failed(el, 'gh_ledger', 'gh_findings')) return showFail(el);
+    const L = dash.data('gh_ledger'), F = dash.data('gh_findings'), T = dash.data('gh_trends');
+    if (L.status !== 'ok' || F.status !== 'ok') { el.replaceChildren(); return; }
+    const wk = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
+    const first = d3.min(L.data, (e) => e.first_seen);
+    const last = T.status === 'ok' ? d3.max(T.data, (t) => t.day) : null;
+    const today = T.status === 'ok' ? T.data.filter((t) => t.day === last) : [];
+    const top = today.sort((a, b) => b.stars_gained - a.stars_gained)[0];
+    const peak = L.data.filter((e) => e.source === 'new').sort((a, b) => (b.peak_spd || 0) - (a.peak_spd || 0))[0];
+    const cards = [
+      ['Repos tracked', d3.format(',')(L.data.length), 'All found since ' + shortDay(first) + ', none deleted.'],
+      ['New finds this week', String(F.data.filter((f) => f.kind === 'New find' && f.day > wk).length), 'Repos that showed up for the first time.'],
+      ['Hottest area today', top ? top.cat : '–', top ? '+' + d3.format(',')(Math.round(top.stars_gained)) + ' stars/day across its repos.' : ''],
+      ['Biggest peak (new repos)', peak ? peak.slug.split('/')[1] : '–', peak ? '+' + d3.format(',')(Math.round(peak.peak_spd)) + ' stars/day on ' + shortDay(peak.peak_day) + '.' : ''],
+    ];
+    el.replaceChildren(...cards.map(([k, v, n]) => { const c = mk('article', 'lb-card u-kpi'); c.dataset.key = k; c.append(mk('p', 'pick-k', k), mk('p', 'big', v), mk('p', 'cmp lb-muted', n)); return c; }));
+  });
+
+  dash.draw('gh-area-key', (el) => {
+    const T = dash.data('gh_trends'); if (T.status !== 'ok') { el.replaceChildren(); return; }
+    const cats = CAT_ORDER.filter((c) => T.data.some((t) => t.cat === c));
+    el.replaceChildren(...cats.map((c) => { const s = mk('span'); const i = mk('i', 'sw'); i.style.background = catColor(c); s.append(i, c); return s; }));
+  });
+  dash.draw('gh-area', (el) => {
+    if (failed(el, 'gh_trends')) return showFail(el);
+    const T = dash.data('gh_trends'); if (T.status !== 'ok') { el.replaceChildren(); return; }
+    const days = [...new Set(T.data.filter((t) => t.repos > 0).map((t) => t.day))].sort();
+    if (!days.length) { el.replaceChildren(mk('p', 'lb-muted', 'Fills in as the daily check runs.')); return; }
+    const cats = CAT_ORDER.filter((c) => T.data.some((t) => t.cat === c));
+    const data = days.map((d) => Object.assign({ day: d }, ...cats.map((c) => ({ [c]: (T.data.find((t) => t.day === d && t.cat === c) || {}).stars_gained || 0 }))));
+    const series = d3.stack().keys(cats)(data);
+    const W = el.clientWidth || 600, H = 300, m = { t: 12, r: 12, b: 26, l: 52 };
+    const x = d3.scaleBand().domain(days).range([m.l, Math.min(W - m.r, m.l + 90 * Math.max(days.length, 3))]).padding(0.3);
+    const y = d3.scaleLinear().domain([0, d3.max(series.at(-1), (p) => p[1]) || 1]).nice().range([H - m.b, m.t]);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Stars gained per day by area');
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d3.format('~s')).tickSize(-(W - m.l - m.r))).call(axisStyle);
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickFormat(shortDay).tickSize(0)).call(axisStyle).call((a) => a.selectAll('text').attr('dy', '1em'));
+    svg.append('g').selectAll('g').data(series).join('g').attr('fill', (s) => catColor(s.key))
+      .selectAll('rect').data((s) => s.map((p) => ({ p, key: s.key }))).join('rect')
+      .attr('x', (d) => x(d.p.data.day)).attr('width', x.bandwidth()).attr('y', (d) => y(d.p[1])).attr('height', (d) => Math.max(0, y(d.p[0]) - y(d.p[1])))
+      .append('title').text((d) => shortDay(d.p.data.day) + ' · ' + d.key + ': +' + d3.format(',')(Math.round(d.p.data[d.key])) + ' stars/day');
+    el.replaceChildren(svg.node());
+  });
+
+  dash.draw('gh-lines', (el) => {
+    if (failed(el, 'gh_history', 'gh_ledger')) return showFail(el);
+    const Hh = dash.data('gh_history'), L = dash.data('gh_ledger');
+    if (Hh.status !== 'ok' || L.status !== 'ok') { el.replaceChildren(); return; }
+    const live = new Set(L.data.filter((e) => e.source === 'new' && !e.dropped_on).map((e) => e.slug));
+    const by = d3.group(Hh.data.filter((r) => live.has(r.slug)), (r) => r.slug);
+    const lines = [...by].map(([slug, pts]) => { pts = pts.slice().sort((a, b) => a.day < b.day ? -1 : 1); return { slug, cat: pts[0].cat, pts: pts.map((p) => ({ day: p.day, v: p.stars - pts[0].stars })) }; })
+      .filter((l) => l.pts.length > 1).sort((a, b) => b.pts.at(-1).v - a.pts.at(-1).v).slice(0, 8);
+    const days = [...new Set(lines.flatMap((l) => l.pts.map((p) => p.day)))].sort();
+    if (fewDays(el, days.length)) return;
+    const W = el.clientWidth || 600, H = 300, m = { t: 12, r: Math.min(170, W * 0.35), b: 26, l: 44 };
+    const x = d3.scalePoint().domain(days).range([m.l, W - m.r]);
+    const y = d3.scaleLinear().domain([0, d3.max(lines, (l) => d3.max(l.pts, (p) => p.v)) || 1]).nice().range([H - m.b, m.t]);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Stars gained since first found, top new repos');
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d3.format('~s')).tickSize(-(W - m.l - m.r))).call(axisStyle);
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickFormat(shortDay).tickSize(0)).call(axisStyle).call((a) => a.selectAll('text').attr('dy', '1em'));
+    const ln = d3.line().x((p) => x(p.day)).y((p) => y(p.v));
+    const g = svg.append('g').selectAll('g').data(lines).join('g');
+    g.append('path').attr('d', (l) => ln(l.pts)).attr('fill', 'none').attr('stroke', (l) => catColor(l.cat)).attr('stroke-width', 2);
+    g.append('circle').attr('cx', (l) => x(l.pts.at(-1).day)).attr('cy', (l) => y(l.pts.at(-1).v)).attr('r', 3).attr('fill', (l) => catColor(l.cat));
+    g.append('title').text((l) => l.slug + ' (' + l.cat + '): +' + d3.format(',')(l.pts.at(-1).v) + ' stars since ' + shortDay(l.pts[0].day));
+    // direct labels at line ends, nudged apart so they don't overlap
+    const labs = lines.map((l) => ({ l, y: y(l.pts.at(-1).v) })).sort((a, b) => a.y - b.y);
+    for (let i = 1; i < labs.length; i++) labs[i].y = Math.max(labs[i].y, labs[i - 1].y + 13);
+    svg.append('g').selectAll('text').data(labs).join('text').attr('x', W - m.r + 8).attr('y', (d) => d.y + 4).attr('font-size', 11).attr('fill', 'var(--color-fg)')
+      .text((d) => { const n = d.l.slug.split('/')[1]; return (n.length > 16 ? n.slice(0, 15) + '…' : n) + ' +' + d3.format(',')(d.l.pts.at(-1).v); });
+    el.replaceChildren(svg.node());
+  });
+
+  const KINDS = ['All', 'Top riser', 'Breakout', 'New find', 'Release', 'Area trend', 'Cooling', 'Dropped off'];
+  dash.draw('gh-kind-chips', (el) => {
+    const F = dash.data('gh_findings'); const have = new Set(F.status === 'ok' ? F.data.map((f) => f.kind) : []);
+    const cur = dash.params().ghKind || 'All';
+    el.replaceChildren(...KINDS.filter((k) => k === 'All' || have.has(k)).map((k) => {
+      const b = mk('button', 'chip', k); b.type = 'button'; b.setAttribute('aria-pressed', String(k === cur));
+      b.addEventListener('click', () => dash.setParams({ ghKind: k })); return b;
+    }));
+  });
+  dash.draw('gh-log', (el) => {
+    if (failed(el, 'gh_findings')) return showFail(el);
+    const F = dash.data('gh_findings'); if (F.status !== 'ok') { el.replaceChildren(); return; }
+    const cur = dash.params().ghKind || 'All';
+    const rows = F.data.filter((f) => cur === 'All' || f.kind === cur);
+    if (!rows.length) { el.replaceChildren(mk('p', 'lb-muted', 'No findings of this type yet.')); return; }
+    const days = d3.groups(rows, (f) => f.day).sort((a, b) => a[0] < b[0] ? 1 : -1).slice(0, 14);
+    const order = (k) => KINDS.indexOf(k);
+    el.replaceChildren(...days.map(([d, fs]) => {
+      const box = mk('div', 'gh-day'); box.append(mk('b', null, new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })));
+      fs.slice().sort((a, b) => order(a.kind) - order(b.kind)).forEach((f) => {
+        const r = mk('div', 'gh-f'); r.dataset.key = d + f.kind + f.slug;
+        r.append(mk('span', 'tag' + (f.kind === 'Breakout' || f.kind === 'Top riser' ? ' hot' : f.kind === 'Cooling' || f.kind === 'Dropped off' ? ' warn' : ''), f.kind), mk('span', null, f.text));
+        box.append(r);
+      });
+      return box;
+    }));
+  });
+
+  // ---- Watchlist table
+  document.querySelectorAll('#hide-skip').forEach((c) => c.addEventListener('change', () => dash.setParams({ hideSkip: c.checked })));
+  dash.onData(() => { document.querySelectorAll('#hide-skip').forEach((c) => { c.checked = dash.params().hideSkip !== false; }); });
+  const STATUS = { installed: ['Installed', 'ok'], todo: ['Fix', 'warn'], trial: ['Try next', 'warn'], watch: ['Watching', 'mute'], skip: ['Skipped', 'mute'] };
+  dash.draw('watch-rows', (tb) => {
+    const g = dash.data('repos');
+    if (g.status !== 'ok') { tb.replaceChildren(); return; }
+    const hide = dash.params().hideSkip !== false;
+    const ord = { installed: 0, todo: 1, trial: 2, watch: 3, skip: 4 };
+    const rows = g.data.filter((r) => r.source === 'watchlist' && !(hide && r.status === 'skip'))
+      .sort((a, b) => ord[a.status] - ord[b.status] || (b.stars_per_day ?? 0) - (a.stars_per_day ?? 0));
+    tb.replaceChildren(...rows.map((r) => {
+      const tr = mk('tr'); tr.dataset.key = r.slug;
+      const td = (cls) => { const c = mk('td', cls); tr.append(c); return c; };
+      const mc = td(); const cm = mk('div', 'cell-model'); const nm = mk('div');
+      nm.append(link(r.url, r.slug), mk('span', 'gh-desc', r.note || r.desc)); nm.lastChild.title = r.note || r.desc;
+      cm.append(avImg(r.avatar), nm); mc.append(cm);
+      td().textContent = r.cat;
+      const st = STATUS[r.status] || [r.status, 'mute']; td().append(mk('span', 'pill ' + st[1], st[0]));
+      td('num').textContent = d3.format(',')(r.stars);
+      td('num').textContent = perDay(r).replace(' / day', '');
+      const rc = td(); if (r.release) { rc.append(mk('span', null, r.release + ' ')); if (r.new_release) rc.append(mk('span', 'tag warn', 'New this week')); } else rc.textContent = '–';
+      td('num').textContent = r.days_since_push == null ? '–' : r.days_since_push === 0 ? 'Today' : r.days_since_push + 'd ago';
+      const fc = td(); if (r.flags) String(r.flags).split(', ').forEach((f) => fc.append(mk('span', 'tag warn', f), ' ')); else fc.textContent = '–';
+      return tr;
+    }));
+  });
+})();
+</script>

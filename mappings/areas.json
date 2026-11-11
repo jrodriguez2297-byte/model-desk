@@ -1,0 +1,83 @@
+{
+ "schema_version": 1,
+ "block": [
+  "captcha",
+  "undetect",
+  "anti-bot",
+  "jailbreak",
+  "free api key",
+  "relay",
+  "usdc",
+  "crypto",
+  "x402",
+  "nsfw",
+  "trading",
+  "trader"
+ ],
+ "areas": {
+  "Claude skills": {
+   "need": [
+    "skill",
+    "plugin",
+    "mcp",
+    "claude code",
+    "subagent",
+    "hook"
+   ]
+  },
+  "Token savers": {
+   "need": [
+    "token",
+    "context",
+    "compress",
+    "cache"
+   ]
+  },
+  "Local AI": {
+   "need": [
+    "local",
+    "ollama",
+    "mlx",
+    "llama",
+    "on-device",
+    "offline",
+    "your own"
+   ]
+  },
+  "Design and animation": {
+   "need": [
+    "component",
+    "design",
+    "animation",
+    "motion",
+    "ui"
+   ]
+  },
+  "Video": {
+   "need": [
+    "video",
+    "reel",
+    "motion",
+    "render"
+   ]
+  },
+  "Agents": {
+   "need": [
+    "agent",
+    "automation",
+    "workflow"
+   ]
+  },
+  "Leads and free app swaps": {
+   "need": [
+    "self-hosted",
+    "open-source",
+    "open source",
+    "alternative",
+    "scrap",
+    "crm",
+    "lead"
+   ]
+  }
+ }
+}

@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the Model Desk refresh every day at 06:00
+
+[Timer]
+OnCalendar=*-*-* 06:00:00
+# Run a missed job after the machine was off or asleep.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

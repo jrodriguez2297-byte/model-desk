@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "time_zone": "auto",
+  "ram_gb": "auto",
+  "usage": {
+    "enabled": true,
+    "show_titles": false,
+    "show_projects": false,
+    "exclude_paths": []
+  },
+  "uncensored_builds": false,
+  "ollama_overrides": {},
+  "extra_local": [],
+  "areas": {}
+}

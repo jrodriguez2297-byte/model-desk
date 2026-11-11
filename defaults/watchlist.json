@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "_note": "Repos you want to follow. status: installed | trial | todo | watch | skip. Edit by hand; the daily refresh reads it.",
+  "repos": [
+    {"slug": "ollama/ollama", "cat": "Local AI", "status": "watch", "note": "Runs open models on your own machine."},
+    {"slug": "anthropics/claude-code", "cat": "Claude skills", "status": "watch", "note": "Claude Code itself."}
+  ],
+  "discover": [
+    {"cat": "Claude skills", "q": "claude skill in:name,description,topics"},
+    {"cat": "Claude skills", "q": "topic:agent-skills"},
+    {"cat": "Claude skills", "q": "claude code plugin in:description"},
+    {"cat": "Claude skills", "q": "topic:mcp-server"},
+    {"cat": "Token savers", "q": "claude tokens in:description"},
+    {"cat": "Token savers", "q": "context window compression in:description"},
+    {"cat": "Local AI", "q": "topic:ollama"},
+    {"cat": "Local AI", "q": "topic:local-llm"},
+    {"cat": "Local AI", "q": "mlx apple silicon in:description"},
+    {"cat": "Agents", "q": "topic:ai-agents"}
+  ],
+  "discover_days": 60,
+  "discover_min_stars": 300
+}
