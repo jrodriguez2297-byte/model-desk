@@ -8,8 +8,9 @@ def test_old_dates_get_times_and_short_gap_is_flagged():
     times = migrate.snapshot_times(hist, evening={"2026-11-07"})
     assert sorted(times) == ["2026-11-07", "2026-11-08", "2026-11-10"]
     assert "T18:00" in times["2026-11-07"] and "T06:00" in times["2026-11-08"]
-    # evening to next morning is 12 hours: that day's gain is left out of trends, later days are kept
-    assert ghtrends.short_gap_days(times) == {"2026-11-08"}
+    # evening to next morning is 12 hours: long enough to keep, and counted as half a day
+    assert ghtrends.short_gap_days(times) == set()
+    assert ghtrends.span_days(times, "2026-11-07", "2026-11-08") == 0.5
 
 
 def test_usage_history_shape_and_counts():

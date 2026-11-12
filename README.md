@@ -14,8 +14,15 @@ writes one file: `~/.model-desk/dashboard.html`.
 
 ## Set up (about 10 minutes)
 
+Works on macOS and Linux. Windows is not supported yet.
+
 You need [uv](https://docs.astral.sh/uv/). Optional: the [gh CLI](https://cli.github.com) signed in
 (GitHub section) and [Ollama](https://ollama.com) (shows which models you have installed).
+
+```bash
+git clone https://github.com/jrodriguez2297-byte/model-desk.git
+cd model-desk
+```
 
 1. Get a free API key at <https://artificialanalysis.ai/data-api>.
 2. Save it. Either put `AA_API_KEY=...` in `~/.model-desk/.env`, or on macOS run
@@ -23,6 +30,9 @@ You need [uv](https://docs.astral.sh/uv/). Optional: the [gh CLI](https://cli.gi
 3. Build the dashboard once: `uv run refresh.py`
 4. Open `~/.model-desk/dashboard.html` in your browser.
 5. Make it daily: `uv run python install_timer.py` (remove with `--remove`).
+
+You can run step 3 before you have a key. The page still builds, shows the parts that work
+(human-vote scores, your Claude Code usage) and lists what is left to set up at the top.
 
 ## Your settings
 
@@ -37,7 +47,7 @@ Everything of yours lives in `~/.model-desk/` and never in this repo.
 
 ## Privacy
 
-- The usage audit reads `~/.claude/projects` on your machine. Only totals are written: no prompts, no file contents.
+- The usage audit reads `~/.claude/projects` on your machine (or `$CLAUDE_CONFIG_DIR/projects` if you set that). Only totals are written: no prompts, no file contents.
 - Session titles and project names are **off** by default. Turn them on with `usage.show_titles` and `usage.show_projects`.
 - `usage.exclude_paths` skips any session whose folder contains one of your strings.
 - Set `usage.enabled` to `false` to skip the audit entirely.
@@ -56,7 +66,14 @@ Everything of yours lives in `~/.model-desk/` and never in this repo.
 ## When something breaks
 
 Each source is independent. If one fails, its section keeps yesterday's data and shows a note
-saying which source failed and why. Details are in `~/.model-desk/refresh.log`.
+saying which source failed and why. A source that has never worked shows as "not set up yet" with
+the fix. Details are in `~/.model-desk/refresh.log`.
+
+The timer runs at 6 AM in your computer's own time zone. Days in the usage audit follow the same
+zone unless you set `time_zone` in `config.json` (for example `"America/Chicago"`).
+
+Star gains are divided by the real time between two checks, so running the refresh by hand at
+any hour does not bend the numbers.
 
 ## Tests
 

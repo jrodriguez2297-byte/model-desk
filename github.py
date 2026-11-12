@@ -3,7 +3,7 @@
 Builds the "repos" dataset (your watchlist plus new discoveries, with star momentum) and keeps
 history/repo_history.json: one star snapshot per repo per day, kept forever.
 history/snapshot_times.json records the exact time of each day's snapshot, so gains between
-snapshots taken less than 20 hours apart are not counted as a full day.
+every gain is divided by the real time between two snapshots, not by calendar days.
 Uses the gh CLI's login for API calls. Repo descriptions are third-party text: they are stored
 as data and only ever shown as plain text.
 """
@@ -17,14 +17,40 @@ TODAY = dt.date.today().isoformat()
 SOURCE = "https://docs.github.com/en/rest (GitHub API via the gh CLI); your watchlist"
 
 
-def gh(path):
+GONE = ("HTTP 404", "HTTP 451", "HTTP 422")   # the repo is gone or blocked, or the search is not valid
+RETRY_WAIT = 4
+
+
+def gh(path, tries=3):
+    """One GitHub API call. Returns None only when GitHub says the thing does not exist.
+    Any other failure (rate limit, network) is retried, then raised: a failed call must never
+    look like "this repo left the list", or the findings log fills with false drop-offs."""
     if not shutil.which("gh"):
         raise RuntimeError("the gh CLI is not installed (https://cli.github.com), so the GitHub section is skipped")
-    out = subprocess.run(["gh", "api", "-H", "Accept: application/vnd.github+json", path],
-                         capture_output=True, text=True)
-    if out.returncode != 0:
-        return None
-    return json.loads(out.stdout)
+    err = ""
+    for i in range(tries):
+        out = subprocess.run(["gh", "api", "-H", "Accept: application/vnd.github+json", path],
+                             capture_output=True, text=True)
+        if out.returncode == 0:
+            return json.loads(out.stdout)
+        err = (out.stderr or out.stdout or "").strip()
+        if any(g in err for g in GONE):
+            return None
+        if i + 1 < tries:
+            time.sleep(RETRY_WAIT * (i + 1))
+    raise RuntimeError(f"GitHub did not answer for {path.split('?')[0]}: {(err.splitlines() or ['no output'])[-1][:120]}")
+
+
+def span_days(times, a, b):
+    """Days between the snapshots of day a and day b: real elapsed time when both snapshot times
+    are known (never under 6 hours, so two close runs cannot blow a rate up), else calendar days."""
+    try:
+        d = (dt.datetime.fromisoformat(times[b]) - dt.datetime.fromisoformat(times[a])).total_seconds() / 86400
+        if d > 0:
+            return max(d, 0.25)
+    except (KeyError, TypeError, ValueError):
+        pass
+    return max((dt.date.fromisoformat(b) - dt.date.fromisoformat(a)).days, 1)
 
 
 def avatar(url):
@@ -69,7 +95,7 @@ def latest_release(slug):
     return rel["tag_name"], (rel.get("published_at") or "")[:10]
 
 
-def momentum(hist, slug, stars, age):
+def momentum(hist, slug, stars, age, times=None):
     """Stars per day over the last 7 days of snapshots, else lifetime average."""
     snaps = hist.get(slug, {})
     past = sorted(d for d in snaps if d < TODAY)
@@ -77,8 +103,7 @@ def momentum(hist, slug, stars, age):
         cutoff = (dt.date.today() - dt.timedelta(days=7)).isoformat()
         older = [d for d in past if d >= cutoff] or past[-1:]
         d0 = older[0]
-        days = max((dt.date.today() - dt.date.fromisoformat(d0)).days, 1)
-        return round((stars - snaps[d0]) / days, 1), "measured"
+        return round((stars - snaps[d0]) / span_days(times or {}, d0, TODAY), 1), "measured"
     if age:
         return round(stars / max(age, 1), 1), "lifetime"
     return None, None
@@ -123,8 +148,12 @@ def build():
     hist = store.read_json(HIST, {})
     times = store.read_json(TIMES, {})
     area_map, block = areas()
-    if gh("rate_limit") is None:
-        raise RuntimeError("gh is not signed in (run: gh auth login), so the GitHub section is skipped")
+    try:
+        gh("rate_limit", tries=1)
+    except RuntimeError as e:
+        if "not installed" in str(e):
+            raise
+        raise RuntimeError("gh is not signed in (run: gh auth login), so the GitHub section is skipped") from None
     rows, seen = [], set()
 
     for w in cfg["repos"]:
@@ -153,9 +182,10 @@ def build():
             rows.append(row)
             seen.add(row["slug"].lower())
 
+    times[TODAY] = dt.datetime.now().astimezone().replace(microsecond=0).isoformat()
     for row in rows:
         hist.setdefault(row["slug"], {})[TODAY] = row["stars"]
-        row["stars_per_day"], row["momentum_basis"] = momentum(hist, row["slug"], row["stars"], row["age_days"])
+        row["stars_per_day"], row["momentum_basis"] = momentum(hist, row["slug"], row["stars"], row["age_days"], times)
         snaps = hist[row["slug"]]
         prev = sorted(d for d in snaps if d < TODAY)
         row["stars_change_1d"] = row["stars"] - snaps[prev[-1]] if prev else None
@@ -168,7 +198,6 @@ def build():
         row["history"] = ";".join(f"{d}={n}" for d, n in row["history"])
 
     # history is kept forever (ghtrends.py builds trends and the findings log from it)
-    times[TODAY] = dt.datetime.now().astimezone().replace(microsecond=0).isoformat()
     store.write_json(HIST, hist)
     store.write_json(TIMES, times)
     return rows

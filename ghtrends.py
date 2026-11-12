@@ -9,6 +9,7 @@ Runs after github.build(). Reads the "repos" dataset and history/repo_history.js
 import datetime as dt, json, statistics
 
 import store
+from github import span_days
 
 HIST = store.HISTORY / "repo_history.json"
 TIMES = store.HISTORY / "snapshot_times.json"
@@ -17,7 +18,7 @@ LEDGER_START = store.HISTORY / "repo_ledger_day_start.json"
 FIND = store.FINDINGS
 LOG = FIND / "log.json"
 TODAY = dt.date.today().isoformat()
-MIN_GAP_HOURS = 20  # snapshots closer than this are not a full day: their gain is left out of trends
+MIN_GAP_HOURS = 8   # a snapshot this soon after the last one is too short to judge: left out of trends, peaks and alerts
 BREAKOUT_MIN = 50   # stars/day before a jump counts as a breakout
 # A breakout needs 3+ earlier daily gains to compare against, so a repo's first days never trigger one.
 COOL_SHARE = 0.3    # below 30% of its peak pace counts as cooling
@@ -39,7 +40,7 @@ def day_start_ledger(ledger, today=None):
 
 
 def short_gap_days(times):
-    """Days whose snapshot came less than 20 hours after the previous one."""
+    """Days whose snapshot came less than MIN_GAP_HOURS after the previous one."""
     out, ds = set(), sorted(times)
     for p, d in zip(ds, ds[1:]):
         try:
@@ -55,16 +56,19 @@ def days_between(a, b):
     return (dt.date.fromisoformat(b) - dt.date.fromisoformat(a)).days
 
 
-def daily_gains(snaps):
-    """[(day, stars gained per day since the previous snapshot)] for each snapshot after the first."""
+def daily_gains(snaps, times=None):
+    """[(day, stars gained per day since the previous snapshot)] for each snapshot after the first.
+    The gain is divided by the real time between the two snapshots (see github.span_days): a
+    late-evening snapshot followed by a 6 AM one is 7 hours of stars, not a day's worth."""
     ds = sorted(snaps)
-    return [(d, (snaps[d] - snaps[p]) / max(days_between(p, d), 1)) for p, d in zip(ds, ds[1:])]
+    return [(d, (snaps[d] - snaps[p]) / span_days(times or {}, p, d)) for p, d in zip(ds, ds[1:])]
 
 
 def build():
     rows = store.read_rows("repos")
     hist = load(HIST, {})
-    partial = short_gap_days(load(TIMES, {}))
+    times = load(TIMES, {})
+    partial = short_gap_days(times)
     ledger = day_start_ledger(load(LEDGER, {}))
     log = load(LOG, [])
     log = [f for f in log if f["day"] != TODAY]  # re-running today replaces today's findings
@@ -77,10 +81,11 @@ def build():
         snaps = hist.get(r["slug"], {})
         e = ledger.get(r["slug"]) or {"first_seen": min(snaps) if snaps else TODAY, "first_stars": snaps[min(snaps)] if snaps else r["stars"],
                                       "peak_spd": 0, "peak_day": None}
-        gains = daily_gains(snaps)
+        gains = daily_gains(snaps, times)
         today_gain = gains[-1][1] if gains and gains[-1][0] == TODAY else None
+        e["peak_spd"], e["peak_day"] = 0, None   # worked out from the full history every run, never carried over
         for d, v in gains:
-            if v > e["peak_spd"]:
+            if d not in partial and v > e["peak_spd"]:
                 e["peak_spd"], e["peak_day"] = round(v, 1), d
         e.update(slug=r["slug"], cat=r["cat"], source=r["source"], status=r["status"], url=r["url"], desc=r["desc"],
                  created=r["created"], last_seen=TODAY, last_stars=r["stars"], days_tracked=len(snaps),
@@ -105,9 +110,9 @@ def build():
         g, gains = e.pop("_today_gain"), e.pop("_gains")
         if e["source"] == "new" and e["first_seen"] == TODAY and prev_run:
             add("New find", slug, e["cat"], f"{slug} ({e['cat']}): {e['desc'][:110]}", e["last_stars"])
-        if g is None:
-            continue
-        past = [v for d, v in gains[:-1] if days_between(d, TODAY) <= 7]
+        if g is None or TODAY in partial:
+            continue   # no gain yet, or too soon after the last snapshot to call a breakout or a slowdown
+        past = [v for d, v in gains[:-1] if days_between(d, TODAY) <= 7 and d not in partial]
         if len(past) >= 3 and g >= BREAKOUT_MIN and g >= 2 * statistics.mean(past):
             add("Breakout", slug, e["cat"], f"{slug} gained {g:,.0f} stars/day, over 2x its recent pace of {statistics.mean(past):,.0f}.", g)
         if e["peak_spd"] >= BREAKOUT_MIN and e["peak_day"] != TODAY and g < COOL_SHARE * e["peak_spd"] and not e.get("cooling"):
@@ -120,10 +125,10 @@ def build():
     for r in rows:
         if r["source"] == "watchlist" and r.get("new_release") and r.get("release_date") == TODAY:
             add("Release", r["slug"], r["cat"], f"{r['slug']} shipped {r['release']} (you have it as '{r['status']}').")
-    gainers = sorted((e for e in live if e["source"] == "new" and gain_today(hist, e["slug"])),
-                     key=lambda e: -(gain_today(hist, e["slug"]) or 0))[:3]
+    gainers = sorted((e for e in live if e["source"] == "new" and gain_today(hist, e["slug"], times)),
+                     key=lambda e: -(gain_today(hist, e["slug"], times) or 0))[:3]
     for i, e in enumerate(gainers):
-        v = gain_today(hist, e["slug"])
+        v = gain_today(hist, e["slug"], times)
         if v:
             add("Top riser", e["slug"], e["cat"], f"#{i + 1} today: {e['slug']} +{v:,.0f} stars/day ({e['cat']}).", v)
 
@@ -133,9 +138,9 @@ def build():
         e = ledger.get(slug)
         if not e:
             continue
-        for d, v in daily_gains(snaps):
+        for d, v in daily_gains(snaps, times):
             if d in partial:
-                continue  # taken hours after the previous snapshot, not a day: skip so the trend isn't understated
+                continue  # taken a few hours after the previous snapshot: too short a window to trust
             t = trends.setdefault((d, e["cat"]), {"day": d, "cat": e["cat"], "stars_gained": 0.0, "repos": 0, "new_found": 0})
             t["stars_gained"] += max(v, 0)
             t["repos"] += 1
@@ -181,8 +186,8 @@ def build():
     return finds
 
 
-def gain_today(hist, slug):
-    g = daily_gains(hist.get(slug, {}))
+def gain_today(hist, slug, times=None):
+    g = daily_gains(hist.get(slug, {}), times)
     return g[-1][1] if g and g[-1][0] == TODAY else None
 
 

@@ -10,11 +10,11 @@ in ~/.model-desk/config.json. Nothing here leaves your machine.
 Costs are "API-equivalent": what the same tokens would cost on the API.
 On a Claude plan they show share of usage, not a bill.
 """
-import datetime as dt, json, pathlib, re, collections
+import datetime as dt, json, os, pathlib, re, collections
 
 import store
 
-LOGS = pathlib.Path.home() / ".claude" / "projects"
+LOGS = pathlib.Path(os.environ.get("CLAUDE_CONFIG_DIR") or pathlib.Path.home() / ".claude").expanduser() / "projects"
 CFG = store.config()
 TZ = store.time_zone(CFG)
 DAYS = 35      # 7 recent days plus the 28 before them. Claude Code keeps logs about 30 days by default.

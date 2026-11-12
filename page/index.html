@@ -126,6 +126,7 @@
 .tier-gain { font-size: 11px; font-weight: 600; color: var(--color-ok); }
 .tier-axis { display: grid; grid-template-columns: minmax(7rem, 9rem) minmax(0, 1fr); gap: var(--cds-gap-md); font-size: 11px; color: var(--color-fg-muted); }
 @media (max-width: 560px) { .tier { grid-template-columns: minmax(0, 1fr); gap: 2px; } .tier-axis { grid-template-columns: minmax(0, 1fr); } .tier-axis > :first-child { display: none; } }
+#usage.u-empty > :not(h2):not(.lb-intro):not(.u-banner):not(.lb-stale) { display: none; }
 .u-banner { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: center; font-size: var(--cds-font-size-caption); }
 .u-days { display: flex; gap: 3px; } .u-days i { width: 14px; height: 14px; border-radius: 3px; background: var(--cds-chart-muted); opacity: .35; } .u-days i.on { background: var(--color-ok); opacity: 1; } .u-days i.today { outline: 2px solid var(--color-fg); outline-offset: 1px; }
 .u-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: var(--cds-gap-md); }
@@ -155,6 +156,7 @@
   </header>
 
   <p class="lb-stale" data-draw="old-build" hidden></p>
+  <div class="lb-stale" data-draw="first-run" hidden></div>
   <nav class="lb-nav" aria-label="Sections">
     <a href="#usage">My AI usage</a><a href="#setup">My setup</a><a href="#rising">Rising on GitHub</a><a href="#watch">My repos</a><a href="#picks">Model picks</a><a href="#map">Budgets</a><a href="#local">Local models</a><a href="#tasks">By task</a><a href="#all">All models</a>
   </nav>
@@ -221,7 +223,7 @@
     <div class="gh-two">
       <div>
         <h3>Where the attention goes</h3>
-        <p class="lb-muted">Stars gained per day across everything tracked, split by area. One bar per daily check. A check made less than 20 hours after the one before is left out.</p>
+        <p class="lb-muted">Stars gained per day across everything tracked, split by area. One bar per daily check. Gains are divided by the real time between checks. A check made less than 8 hours after the one before is left out.</p>
         <div class="lb-legend" data-draw="gh-area-key" data-source="gh_trends"></div>
         <div class="lb-chart" data-draw="gh-area" data-source="gh_trends"></div>
       </div>
@@ -249,7 +251,7 @@
   <section class="lb-section" id="watch">
     <p class="lb-stale" data-draw="stale" data-stale="GitHub" data-source="status" hidden></p>
     <h2>Your saved repos</h2>
-    <p class="lb-intro">Every repo from your Desktop folder and tool report, checked daily for stars, releases and health.</p>
+    <p class="lb-intro">Every repo in your watchlist (<code>~/.model-desk/watchlist.json</code>), checked daily for stars, releases and health.</p>
     <div class="lb-controls"><label><input type="checkbox" id="hide-skip" checked> Hide ones I skipped</label></div>
     <div class="lb-table-wrap">
       <table data-source="repos" data-row-key="slug">
@@ -521,15 +523,16 @@ dash.calc('usage_kpis', {
     const split = (rows, f) => [rows.filter((r) => !f(r)), rows.filter(f)];
     const [bD, aD] = split(daily, isRecent);
     const [bS, aS] = split(usage, isRecent);
+    const baseDays = new Set(bD.map((r) => r.day)).size;
     const perDay = (rows) => { const days = new Set(rows.map((r) => r.day)).size; return days ? rows.reduce((s, r) => s + r.cost, 0) / days : null; };
     const bigShare = (rows) => { const t = rows.reduce((s, r) => s + r.cost, 0); return t ? 100 * rows.filter((r) => r.family === 'opus' || r.family === 'fable').reduce((s, r) => s + r.cost, 0) / t : null; };
     const median = (a) => { if (!a.length) return null; const s = a.slice().sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
     const subCheap = (rows) => { const t = rows.reduce((s, r) => s + r.sub_cost, 0); return t ? 100 * rows.filter((r) => r.family === 'sonnet' || r.family === 'haiku').reduce((s, r) => s + r.sub_cost, 0) / t : null; };
     return [
-      { kpi: 'spend', label: 'Spend per active day', before: perDay(bD), now: perDay(aD), unit: '$', lower_is_better: true, goal: 'Goal: down 30% with the same results' },
-      { kpi: 'big', label: 'Share on Opus or Fable', before: bigShare(bD), now: bigShare(aD), unit: '%', lower_is_better: true, goal: 'Goal: under 70%. Research and writing move to Sonnet' },
-      { kpi: 'start', label: 'Tokens loaded before you type', before: median(bS.map((r) => r.start_context_k)), now: median(aS.map((r) => r.start_context_k)), unit: 'K', lower_is_better: true, goal: 'Goal: under 50K. Every reply re-reads it' },
-      { kpi: 'sub', label: 'Subagent spend on Sonnet or Haiku', before: subCheap(bD), now: subCheap(aD), unit: '%', lower_is_better: false, goal: 'Goal: over 60%' },
+      { kpi: 'spend', label: 'Spend per active day', before: perDay(bD), now: perDay(aD), unit: '$', lower_is_better: true, base_days: baseDays, goal: 'Goal: down 30% with the same results' },
+      { kpi: 'big', label: 'Share on Opus or Fable', before: bigShare(bD), now: bigShare(aD), unit: '%', lower_is_better: true, base_days: baseDays, goal: 'Goal: under 70%. Research and writing move to Sonnet' },
+      { kpi: 'start', label: 'Tokens loaded before you type', before: median(bS.map((r) => r.start_context_k)), now: median(aS.map((r) => r.start_context_k)), unit: 'K', lower_is_better: true, base_days: baseDays, goal: 'Goal: under 50K. Every reply re-reads it' },
+      { kpi: 'sub', label: 'Subagent spend on Sonnet or Haiku', before: subCheap(bD), now: subCheap(aD), unit: '%', lower_is_better: false, base_days: baseDays, goal: 'Goal: over 60%' },
     ];
   },
 });
@@ -673,7 +676,22 @@ dash.calc('setup', {
     const want = (el.dataset.stale || '').split(',');
     const bad = g.status === 'ok' ? g.data.filter((r) => !r.ok && want.includes(r.source)) : [];
     el.hidden = !bad.length;
-    el.textContent = bad.map((r) => r.source + ' could not be refreshed' + (r.stale_since ? ' since ' + new Date(r.stale_since).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '') + '. Showing the last good data. (' + r.error + ')').join(' ');
+    el.textContent = bad.map((r) => r.last_ok
+      ? r.source + ' could not be refreshed' + (r.stale_since ? ' since ' + new Date(r.stale_since).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '') + '. Showing the last good data. (' + r.error + ')'
+      : r.source + ' is not set up yet, so this part is empty. (' + r.error + ')').join(' ');
+  });
+  // First run: say what is still to set up, and hide the headline until there is a pick to put in it.
+  dash.draw('first-run', (el) => {
+    const g = dash.data('status'), picks = dash.data('picks');
+    const todo = g.status === 'ok' ? g.data.filter((r) => !r.ok && !r.last_ok) : [];
+    const lead = document.querySelector('.lb-lead');
+    if (lead) lead.hidden = !(picks.status === 'ok' && picks.data.length);
+    el.hidden = !todo.length;
+    if (!todo.length) { el.replaceChildren(); return; }
+    const ul = document.createElement('ul'); ul.style.margin = '6px 0 0'; ul.style.paddingLeft = '18px';
+    todo.forEach((r) => { const li = document.createElement('li'); const b = document.createElement('b'); b.textContent = r.source + ': '; li.append(b, r.error); ul.append(li); });
+    const head = document.createElement('b'); head.textContent = 'Setup is not finished. Fix these, then run the refresh again:';
+    el.replaceChildren(head, ul);
   });
   dash.draw('old-build', (el) => {
     const hours = MD.generated ? (Date.now() - Date.parse(MD.generated)) / 36e5 : 0;
@@ -695,7 +713,8 @@ dash.calc('setup', {
   });
   dash.draw('asof', (el) => {
     const g = dash.data(el.dataset.ds);
-    if (g.status !== 'ok') { el.textContent = '—'; return; }
+    el.style.color = g.status === 'ok' ? '' : 'inherit';   // the empty state hides text: show "not yet" instead of a gap
+    if (g.status !== 'ok') { el.textContent = 'not yet'; return; }
     let at = (g.meta.find((m) => m.label === 'Fetched') || {}).value;
     if (el.dataset.ds === 'arena' && g.data[0]) at = g.data[0].published;
     const d = at ? new Date(at.length === 10 ? at + 'T12:00:00Z' : at) : null;
@@ -874,7 +893,10 @@ dash.calc('setup', {
   const dayStr = (d) => d.toLocaleDateString('en-CA', MD.time_zone ? { timeZone: MD.time_zone } : {});
   dash.draw('u-banner', (el) => {
     const g = dash.data('usage_daily');
-    const active = new Set(g.status === 'ok' ? g.data.filter(isRecent).map((r) => r.day) : []);
+    const none = !(g.status === 'ok' && g.data.length);
+    el.closest('section').classList.toggle('u-empty', none);
+    if (none) { el.replaceChildren(mk('span', 'lb-muted', 'No Claude Code sessions found on this machine in the last 35 days. This section fills in after you use Claude Code and the next refresh runs.')); return; }
+    const active = new Set(g.data.filter(isRecent).map((r) => r.day));
     const dots = mk('span', 'u-days'), now = Date.now();
     for (let i = RECENT_DAYS - 1; i >= 0; i--) { const d = dayStr(new Date(now - i * 864e5)); const x = mk('i'); if (active.has(d)) x.className = 'on'; if (i === 0) x.classList.add('today'); x.title = d; dots.append(x); }
     el.replaceChildren(mk('b', null, 'Last 7 days against the 28 days before'), dots, mk('span', 'lb-muted', 'The 28 days before are your baseline.'));
@@ -891,6 +913,7 @@ dash.calc('setup', {
       c.append(mk('p', 'big', f(cur, k.unit)));
       let cmp;
       if (k.now == null) cmp = mk('p', 'cmp lb-muted', 'Baseline only. No sessions in the last 7 days yet.');
+      else if (k.before == null || k.base_days < 3) cmp = mk('p', 'cmp lb-muted', 'No baseline yet: ' + k.base_days + ' active day' + (k.base_days === 1 ? '' : 's') + ' before this week. A fair comparison needs 3.');
       else {
         const better = k.lower_is_better ? k.now < k.before : k.now > k.before;
         const delta = k.before ? Math.round(100 * (k.now - k.before) / k.before) : 0;

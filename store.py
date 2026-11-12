@@ -4,7 +4,7 @@ All user data lives in ~/.model-desk (override with MODEL_DESK_HOME):
   config.json, watchlist.json, data/, history/, findings/, cache/, backups/, dashboard.html
 Every writer goes through write_json() so a crash never leaves a half-written file.
 """
-import contextlib, datetime as dt, json, os, platform, shutil, subprocess, sys, tempfile
+import contextlib, datetime as dt, json, os, platform, shutil, subprocess, sys, tempfile, time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent
@@ -71,6 +71,11 @@ def read_rows(name):
 
 # ---------- lock ----------
 def _alive(pid):
+    if os.name == "nt":   # os.kill(pid, 0) would end the process on Windows: trust a lock for 2 hours instead
+        try:
+            return time.time() - LOCK.stat().st_mtime < 7200
+        except OSError:
+            return False
     try:
         os.kill(pid, 0)
         return True

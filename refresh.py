@@ -155,6 +155,7 @@ class Run:
                 store.write_dataset(ds, rows, source, self.now)
                 store.log(f"{ds}: {len(rows)} rows")
             self.status[name] = {"source": name, "ok": True, "stale_since": None, "error": "", "checked": self.now,
+                                 "last_ok": self.now,
                                  "datasets": ", ".join(datasets or (out or {}).keys())}
             return out
         except Exception as e:
@@ -166,6 +167,8 @@ class Run:
                 traceback.print_exc()
             self.status[name] = {"source": name, "ok": False, "stale_since": prev.get("stale_since") or self.now,
                                  "error": msg, "checked": self.now,
+                                 # None means the source has never worked here: the page says "not set up yet"
+                                 "last_ok": prev.get("last_ok") or (prev.get("checked") if prev.get("ok") else None),
                                  "datasets": ", ".join(datasets or prev.get("datasets", "").split(", "))}
             return None
 
@@ -195,7 +198,7 @@ def main():
     def models_step():
         aa, ar = store.read_rows("aa_models"), store.read_rows("arena")
         if not aa:
-            raise RuntimeError("no Artificial Analysis data yet")
+            raise RuntimeError("waiting for Artificial Analysis data (add your API key first)")
         cw = crosswalk(aa, ar)
         lic = {r["model"]: r["open"] for r in ar if r["category"] == "Overall"}
         arena_open = {c["slug"]: lic.get(c["arena_model"], False) for c in cw}
@@ -234,6 +237,9 @@ def main():
         store.log(f"! dashboard build failed: {e}")
         traceback.print_exc()
     store.log(f"{run.now} refresh done: {run.ran - min(run.failed, run.ran)} of {run.ran} sources ok")
+    todo = [r for r in run.status.values() if not r["ok"] and not r.get("last_ok")]
+    if todo:
+        store.log("Not set up yet (the page works without them): " + "; ".join(f"{r['source']}: {r['error']}" for r in todo))
     return 1 if run.failed >= run.ran else 0
 
 

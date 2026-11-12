@@ -16,7 +16,7 @@ MIN_ROWS = 50
 MAX_PAGES = 10
 
 
-class NoKey(Exception):
+class NoKey(RuntimeError):
     pass
 
 
